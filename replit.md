@@ -1,0 +1,77 @@
+# Overview
+
+This is a mioty wireless communication system dashboard built as a full-stack web application. The project provides a management interface for EdgeCard communication devices, allowing users to configure base station settings, manage TLS certificates, monitor connection status, and view system activity logs. The application is designed to simplify the setup and management of mioty-based IoT communication infrastructure.
+
+# User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+# System Architecture
+
+## Frontend Architecture
+- **Framework**: React 18 with TypeScript, built using Vite for fast development and optimized production builds
+- **UI Framework**: Shadcn/ui components built on Radix UI primitives with Tailwind CSS for styling
+- **Routing**: Wouter for lightweight client-side routing
+- **State Management**: TanStack Query (React Query) for server state management and data fetching
+- **Forms**: React Hook Form with Zod validation for type-safe form handling
+
+## Backend Architecture
+- **Runtime**: Node.js with Express.js server framework
+- **Language**: TypeScript with ES modules
+- **Development**: tsx for development server with hot reloading
+- **Production**: esbuild for fast bundling and compilation
+
+## Data Storage Solutions
+- **ORM**: Drizzle ORM for type-safe database operations
+- **Database**: PostgreSQL with Neon serverless database provider
+- **Schema**: Shared TypeScript schema definitions with Zod validation
+- **Storage Strategy**: Currently using in-memory storage (MemStorage) for development, with database schema ready for production deployment
+
+## API Design
+- **Pattern**: RESTful API with JSON request/response format
+- **Endpoints**: Organized around resource-based URLs (/api/connection, /api/config, /api/certificates, etc.)
+- **File Uploads**: Multer middleware for certificate file handling
+- **Error Handling**: Centralized error handling with consistent JSON error responses
+- **Logging**: Custom request/response logging with performance timing
+
+## Component Architecture
+- **Design System**: Modular UI components with consistent theming through CSS custom properties
+- **Layout**: Dashboard-based layout with responsive design for mobile and desktop
+- **Data Flow**: React Query for API state management with optimistic updates and automatic refetching
+- **Form Handling**: Controlled components with validation feedback and loading states
+
+## Development Workflow
+- **Build System**: Vite for frontend bundling with React plugin and TypeScript support
+- **Hot Reloading**: Development server with HMR for both frontend and backend changes
+- **Path Aliases**: Configured import aliases (@, @shared, @assets) for clean imports
+- **Code Quality**: TypeScript strict mode with comprehensive type checking
+
+# External Dependencies
+
+## Core Libraries
+- **@neondatabase/serverless**: Neon serverless PostgreSQL database driver for cloud-native database operations
+- **drizzle-orm & drizzle-kit**: Type-safe ORM with PostgreSQL dialect and migration tools
+- **@tanstack/react-query**: Server state management for data fetching, caching, and synchronization
+
+## UI Framework
+- **@radix-ui/***: Complete suite of accessible UI primitives (dialog, select, accordion, etc.)
+- **tailwindcss**: Utility-first CSS framework for responsive design
+- **class-variance-authority**: Utility for creating variant-based component APIs
+- **lucide-react**: Feather-style icon library for consistent iconography
+
+## Form Management
+- **react-hook-form**: Performant forms library with minimal re-renders
+- **@hookform/resolvers**: Validation resolvers for React Hook Form
+- **zod**: TypeScript-first schema validation library
+
+## Development Tools
+- **tsx**: TypeScript execution environment for Node.js development
+- **esbuild**: Fast JavaScript bundler for production builds
+- **vite**: Frontend build tool with fast HMR and optimized production builds
+- **@replit/vite-plugin-***: Replit-specific development enhancements
+
+## Additional Utilities
+- **wouter**: Minimalist routing library for React applications
+- **date-fns**: Modern JavaScript date utility library
+- **clsx & tailwind-merge**: Utility functions for conditional CSS classes
+- **multer**: Middleware for handling multipart/form-data (file uploads)
