@@ -138,13 +138,14 @@ export default function ConfigurationForm({
             <div className="space-y-4">
               <div>
                 <Label className="flex items-center gap-2">
-                  Unique Base Station ID
-                  <InfoTooltip content="Unique identifier for this base station" />
+                  Unique Base Station ID (Hardware Serial)
+                  <InfoTooltip content="Hardware serial number - cannot be modified" />
                 </Label>
                 <Input
                   {...form.register("uniqueBaseStationId")}
-                  className="font-mono text-sm"
+                  className="font-mono text-sm bg-muted text-muted-foreground cursor-not-allowed"
                   data-testid="input-unique-base-station-id"
+                  readOnly
                 />
               </div>
               
