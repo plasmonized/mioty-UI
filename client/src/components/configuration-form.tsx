@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Settings, RefreshCw, Save, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,16 +34,32 @@ export default function ConfigurationForm({
   const form = useForm<ConfigFormData>({
     resolver: zodResolver(insertBaseStationConfigSchema),
     defaultValues: {
-      uniqueBaseStationId: config?.uniqueBaseStationId || "",
-      baseStationName: config?.baseStationName || "",
-      baseStationVendor: config?.baseStationVendor || "",
-      baseStationModel: config?.baseStationModel || "",
-      serviceCenterAddr: config?.serviceCenterAddr || "",
-      serviceCenterPort: config?.serviceCenterPort || 8883,
-      profile: config?.profile || "EU1",
-      tlsAuthRequired: config?.tlsAuthRequired || true,
+      uniqueBaseStationId: "",
+      baseStationName: "",
+      baseStationVendor: "",
+      baseStationModel: "",
+      serviceCenterAddr: "",
+      serviceCenterPort: 8883,
+      profile: "EU1",
+      tlsAuthRequired: true,
     },
   });
+
+  // Update form values when config data is loaded
+  useEffect(() => {
+    if (config) {
+      form.reset({
+        uniqueBaseStationId: config.uniqueBaseStationId || "",
+        baseStationName: config.baseStationName || "",
+        baseStationVendor: config.baseStationVendor || "",
+        baseStationModel: config.baseStationModel || "",
+        serviceCenterAddr: config.serviceCenterAddr || "",
+        serviceCenterPort: config.serviceCenterPort || 8883,
+        profile: config.profile || "EU1",
+        tlsAuthRequired: config.tlsAuthRequired !== undefined ? config.tlsAuthRequired : true,
+      });
+    }
+  }, [config, form]);
 
   const saveMutation = useMutation({
     mutationFn: (data: ConfigFormData) => apiRequest("PUT", "/api/config", data),
