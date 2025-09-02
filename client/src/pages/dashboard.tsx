@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Radio, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import ConnectionManagement from "@/components/connection-management";
@@ -68,8 +68,13 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Radio className="text-primary text-xl" data-testid="logo-icon" />
+              <div className="flex items-center space-x-3">
+                <img 
+                  src="/sentinum-logo.png" 
+                  alt="Sentinum Logo" 
+                  className="h-8 w-auto"
+                  data-testid="logo-icon" 
+                />
                 <h1 className="text-xl font-bold text-foreground" data-testid="app-title">
                   Sentinum Mioty Console for RAKPiOS
                 </h1>
