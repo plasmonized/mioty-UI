@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the Mioty Web Console project will be documented in this file.
+All notable changes to the mioty Web Console project will be documented in this file.
 
 ## [1.0.0] - 2025-09-01
 

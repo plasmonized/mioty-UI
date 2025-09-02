@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Mioty Web Console Service Setup Script
+# mioty Web Console Service Setup Script
 # Sets up systemd service for automatic startup
 
 set -e
@@ -13,7 +13,7 @@ echo "🔧 Setting up mioty web console as system service..."
 # Create systemd service file
 sudo tee /etc/systemd/system/$SERVICE_NAME.service > /dev/null <<EOF
 [Unit]
-Description=Mioty Web Console - Web interface for mioty base station management
+Description=mioty Web Console - Web interface for mioty base station management
 Documentation=https://github.com/sentinum/mioty-web-console
 After=network.target
 

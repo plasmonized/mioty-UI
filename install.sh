@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Mioty Web Console Installation Script for RAKPiOS
+# mioty Web Console Installation Script for RAKPiOS
 # Author: Sentinum
 # Description: Easy installation script for the mioty web console
 
 set -e
 
-echo "🟧 Mioty Web Console Installer"
+echo "🟧 mioty Web Console Installer"
 echo "=================================="
 echo ""
 
@@ -73,7 +73,7 @@ npm run build
 echo "⚙️  Setting up system service..."
 sudo tee /etc/systemd/system/mioty-web-console.service > /dev/null <<EOF
 [Unit]
-Description=Mioty Web Console
+Description=mioty Web Console
 Documentation=https://github.com/sentinum/mioty-web-console
 After=network.target
 

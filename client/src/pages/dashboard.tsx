@@ -76,7 +76,7 @@ export default function Dashboard() {
                   data-testid="logo-icon" 
                 />
                 <h1 className="text-xl font-bold text-foreground" data-testid="app-title">
-                  Sentinum Mioty Console for RAKPiOS
+                  Sentinum mioty Console for RAKPiOS
                 </h1>
               </div>
               <span className="text-sm text-muted-foreground" data-testid="version-text">

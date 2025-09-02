@@ -1,4 +1,4 @@
-# Mioty Web Console
+# mioty Web Console
 
 A modern web interface for managing Miromico Miro EdgeCard mioty base stations on RAKPiOS. This application provides an intuitive dashboard to replace the command-line mioty-cli tool with a user-friendly web interface.
 
