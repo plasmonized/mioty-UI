@@ -112,16 +112,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create actual SSH tunnel to EdgeCard
       try {
+        // Kill any existing SSH tunnel on port 8888
+        try {
+          await spawn("pkill", ["-f", "8888:localhost:8080"], { stdio: "ignore" });
+        } catch (e) { /* ignore */ }
+
         const sshProcess = spawn("ssh", [
           "-L", "0.0.0.0:8888:localhost:8080",
           "-N", // No remote commands
-          "-f", // Run in background 
-          "-o", "StrictHostKeyChecking=no",
+          "-o", "StrictHostKeyChecking=no", 
           "-o", "UserKnownHostsFile=/dev/null",
+          "-o", "ServerAliveInterval=60",
           "-i", "/home/rak/.ssh/id_rsa",
           `root@${edgeCardIp}`
         ], {
-          stdio: "pipe",
+          stdio: ["ignore", "pipe", "pipe"],
           detached: true
         });
 
