@@ -56,7 +56,7 @@ fi
 
 # Install/update dependencies
 echo "📦 Installing dependencies..."
-npm ci --production
+npm ci
 
 # Build the application
 echo "🔨 Building application..."
