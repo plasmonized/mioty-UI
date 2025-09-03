@@ -160,8 +160,8 @@ export default function Dashboard() {
                     }
                     showToast("Dashboard Opening", "Dashboard tunnel created. Opening in new tab...");
                     setTimeout(() => {
-                      const currentHost = window.location.hostname;
-                      window.open(`http://${currentHost}:8888`, "_blank");
+                      const edgeCardIp = connection?.edgeCardIp || "172.30.1.2";
+                      window.open(`http://${edgeCardIp}:8888`, "_blank");
                     }, 1000);
                   }}
                 >
