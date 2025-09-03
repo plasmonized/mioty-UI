@@ -158,10 +158,10 @@ export default function Dashboard() {
                       showToast("Error", "Please establish connection first", "destructive");
                       return;
                     }
-                    showToast("Dashboard Opening", "Dashboard tunnel created. Opening in new tab...");
+                    showToast("Dashboard Opening", "Run 'mioty-cli dashboard' first to create tunnel. Opening dashboard...");
                     setTimeout(() => {
-                      const edgeCardIp = connection?.edgeCardIp || "172.30.1.2";
-                      window.open(`http://${edgeCardIp}:8888`, "_blank");
+                      const rakPiIp = connection?.ipAddress || "172.30.1.1";
+                      window.open(`http://${rakPiIp}:8888`, "_blank");
                     }, 1000);
                   }}
                 >
