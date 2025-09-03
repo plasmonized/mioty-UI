@@ -120,10 +120,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const sshProcess = spawn("ssh", [
           "-L", "0.0.0.0:8888:localhost:8080",
           "-N", // No remote commands
+          "-o", "ConnectTimeout=10",
+          "-o", "HostKeyAlgorithms=+ssh-rsa",
           "-o", "StrictHostKeyChecking=no", 
           "-o", "UserKnownHostsFile=/dev/null",
-          "-o", "ServerAliveInterval=60",
-          "-i", "/home/rak/.ssh/id_rsa",
           `root@${edgeCardIp}`
         ], {
           stdio: ["ignore", "pipe", "pipe"],
