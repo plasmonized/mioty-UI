@@ -61,6 +61,21 @@ curl -fsSL https://raw.githubusercontent.com/[your-username]/mioty-web-console/m
    sudo ./setup-service.sh
    ```
 
+## Updating to Latest Version
+
+After pushing updates to Git, update your installation:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/[your-username]/mioty-web-console/main/update.sh | bash
+```
+
+The updater will:
+- Create automatic backup of current version
+- Pull latest changes from Git
+- Rebuild application with new code
+- Restart service with zero-downtime
+- Verify successful update
+
 ## Usage
 
 ### Accessing the Interface
