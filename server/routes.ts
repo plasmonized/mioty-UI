@@ -106,7 +106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       await storage.addActivityLog({
         level: "INFO",
-        message: `Creating SSH tunnel: 172.30.1.1:8888 -> ${edgeCardIp}:8080`,
+        message: `Creating SSH tunnel: 0.0.0.0:8888 -> ${edgeCardIp}:8080`,
         source: "dashboard",
       });
 
