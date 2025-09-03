@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertBaseStationConfigSchema, insertCertificateSchema, insertActivityLogSchema } from "@shared/schema";
 import multer from "multer";
+import { spawn } from "child_process";
 
 interface MulterRequest extends Request {
   file?: Express.Multer.File;
@@ -109,8 +110,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
         source: "dashboard",
       });
 
-      // SSH tunnel creation would go here in real implementation
-      // ssh -L 0.0.0.0:8888:localhost:8080 root@172.30.1.2
+      // Create actual SSH tunnel to EdgeCard
+      try {
+        const sshProcess = spawn("ssh", [
+          "-L", "0.0.0.0:8888:localhost:8080",
+          "-N", // No remote commands
+          "-f", // Run in background 
+          "-o", "StrictHostKeyChecking=no",
+          "-o", "UserKnownHostsFile=/dev/null",
+          "-i", "/home/rak/.ssh/id_rsa",
+          `root@${edgeCardIp}`
+        ], {
+          stdio: "pipe",
+          detached: true
+        });
+
+        sshProcess.on("error", async (err) => {
+          await storage.addActivityLog({
+            level: "ERROR",
+            message: `SSH tunnel failed: ${err.message}`,
+            source: "dashboard",
+          });
+        });
+
+        sshProcess.on("spawn", async () => {
+          await storage.addActivityLog({
+            level: "INFO", 
+            message: "SSH tunnel process started successfully",
+            source: "dashboard",
+          });
+        });
+
+        // Unref so parent process doesn't wait
+        sshProcess.unref();
+        
+      } catch (error) {
+        await storage.addActivityLog({
+          level: "ERROR",
+          message: `Failed to spawn SSH tunnel: ${error}`,
+          source: "dashboard", 
+        });
+      }
       
       res.json({ 
         success: true, 
