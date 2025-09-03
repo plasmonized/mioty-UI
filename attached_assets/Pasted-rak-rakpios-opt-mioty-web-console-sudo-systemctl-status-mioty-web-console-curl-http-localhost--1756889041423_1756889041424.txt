@@ -1,0 +1,126 @@
+rak@rakpios:/opt/mioty-web-console $ sudo systemctl status mioty-web-console
+curl http://localhost:5000  # Prüfen ob die App läuft
+● mioty-web-console.service - mioty Web Console
+     Loaded: loaded (/etc/systemd/system/mioty-web-console.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2025-09-03 09:42:08 BST; 1min 27s ago
+       Docs: https://github.com/plasmonized/mioty-UI
+   Main PID: 2559797 (npm start)
+      Tasks: 23 (limit: 1596)
+        CPU: 3.086s
+     CGroup: /system.slice/mioty-web-console.service
+             ├─2559797 "npm start"
+             ├─2559808 sh -c "NODE_ENV=production node dist/index.js"
+             └─2559809 node dist/index.js
+
+Sep 03 09:43:06 rakpios npm[2559809]: 9:43:06 AM [express] GET /api/base-station/status 304 in 3ms :: {"id":"b50b8d>
+Sep 03 09:43:08 rakpios npm[2559809]: 9:43:08 AM [express] POST /api/connection/start 200 in 3ms :: {"message":"Con>
+Sep 03 09:43:08 rakpios npm[2559809]: 9:43:08 AM [express] GET /api/connection 200 in 3ms :: {"id":"295e288b-b218-4>
+Sep 03 09:43:10 rakpios npm[2559809]: 9:43:10 AM [express] GET /api/config 304 in 3ms :: {"id":"48253e55-acf7-4945->
+Sep 03 09:43:10 rakpios npm[2559809]: 9:43:10 AM [express] GET /api/config 304 in 3ms :: {"id":"48253e55-acf7-4945->
+Sep 03 09:43:11 rakpios npm[2559809]: 9:43:11 AM [express] GET /api/logs 200 in 3ms :: [{"id":"6183c515-2548-43b3-9>
+Sep 03 09:43:11 rakpios npm[2559809]: 9:43:11 AM [express] GET /api/base-station/status 304 in 2ms :: {"id":"b50b8d>
+Sep 03 09:43:13 rakpios npm[2559809]: 9:43:13 AM [express] GET /api/connection 304 in 3ms :: {"id":"295e288b-b218-4>
+Sep 03 09:43:16 rakpios npm[2559809]: 9:43:16 AM [express] GET /api/base-station/status 304 in 3ms :: {"id":"b50b8d>
+Sep 03 09:43:23 rakpios npm[2559809]: 9:43:23 AM [express] GET /api/connection 304 in 2ms :: {"id":"295e288b-b218-4>
+lines 1-22/22 (END)...skipping...
+● mioty-web-console.service - mioty Web Console
+     Loaded: loaded (/etc/systemd/system/mioty-web-console.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2025-09-03 09:42:08 BST; 1min 27s ago
+       Docs: https://github.com/plasmonized/mioty-UI
+   Main PID: 2559797 (npm start)
+      Tasks: 23 (limit: 1596)
+        CPU: 3.086s
+     CGroup: /system.slice/mioty-web-console.service
+             ├─2559797 "npm start"
+             ├─2559808 sh -c "NODE_ENV=production node dist/index.js"
+             └─2559809 node dist/index.js
+
+Sep 03 09:43:06 rakpios npm[2559809]: 9:43:06 AM [express] GET /api/base-station/status 304 in 3ms :: {"id":"b50b8d66-13dd-4f9e-9594-b1e>
+Sep 03 09:43:08 rakpios npm[2559809]: 9:43:08 AM [express] POST /api/connection/start 200 in 3ms :: {"message":"Connection started"}
+Sep 03 09:43:08 rakpios npm[2559809]: 9:43:08 AM [express] GET /api/connection 200 in 3ms :: {"id":"295e288b-b218-415f-a4cf-dab575554977>
+Sep 03 09:43:10 rakpios npm[2559809]: 9:43:10 AM [express] GET /api/config 304 in 3ms :: {"id":"48253e55-acf7-4945-b46f-827c0a915a3f","u>
+Sep 03 09:43:10 rakpios npm[2559809]: 9:43:10 AM [express] GET /api/config 304 in 3ms :: {"id":"48253e55-acf7-4945-b46f-827c0a915a3f","u>
+Sep 03 09:43:11 rakpios npm[2559809]: 9:43:11 AM [express] GET /api/logs 200 in 3ms :: [{"id":"6183c515-2548-43b3-9f44-4f3fd4fdd2bf","ti>
+Sep 03 09:43:11 rakpios npm[2559809]: 9:43:11 AM [express] GET /api/base-station/status 304 in 2ms :: {"id":"b50b8d66-13dd-4f9e-9594-b1e>
+Sep 03 09:43:13 rakpios npm[2559809]: 9:43:13 AM [express] GET /api/connection 304 in 3ms :: {"id":"295e288b-b218-415f-a4cf-dab575554977>
+Sep 03 09:43:16 rakpios npm[2559809]: 9:43:16 AM [express] GET /api/base-station/status 304 in 3ms :: {"id":"b50b8d66-13dd-4f9e-9594-b1e>
+Sep 03 09:43:23 rakpios npm[2559809]: 9:43:23 AM [express] GET /api/connection 304 in 2ms :: {"id":"295e288b-b218-415f-a4cf-dab575554977>
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+lines 1-22/22 (END)
+● mioty-web-console.service - mioty Web Console
+     Loaded: loaded (/etc/systemd/system/mioty-web-console.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2025-09-03 09:42:08 BST; 1min 27s ago
+       Docs: https://github.com/plasmonized/mioty-UI
+   Main PID: 2559797 (npm start)
+      Tasks: 23 (limit: 1596)
+        CPU: 3.086s
+     CGroup: /system.slice/mioty-web-console.service
+             ├─2559797 "npm start"
+             ├─2559808 sh -c "NODE_ENV=production node dist/index.js"
+             └─2559809 node dist/index.js
+
+Sep 03 09:43:06 rakpios npm[2559809]: 9:43:06 AM [express] GET /api/base-station/status 304 in 3ms :: {"id":"b50b8d66-13dd-4f9e-9594-b1e08…
+Sep 03 09:43:08 rakpios npm[2559809]: 9:43:08 AM [express] POST /api/connection/start 200 in 3ms :: {"message":"Connection started"}
+Sep 03 09:43:08 rakpios npm[2559809]: 9:43:08 AM [express] GET /api/connection 200 in 3ms :: {"id":"295e288b-b218-415f-a4cf-dab575554977",…
+Sep 03 09:43:10 rakpios npm[2559809]: 9:43:10 AM [express] GET /api/config 304 in 3ms :: {"id":"48253e55-acf7-4945-b46f-827c0a915a3f","uni…
+Sep 03 09:43:10 rakpios npm[2559809]: 9:43:10 AM [express] GET /api/config 304 in 3ms :: {"id":"48253e55-acf7-4945-b46f-827c0a915a3f","uni…
+Sep 03 09:43:11 rakpios npm[2559809]: 9:43:11 AM [express] GET /api/logs 200 in 3ms :: [{"id":"6183c515-2548-43b3-9f44-4f3fd4fdd2bf","time…
+Sep 03 09:43:11 rakpios npm[2559809]: 9:43:11 AM [express] GET /api/base-station/status 304 in 2ms :: {"id":"b50b8d66-13dd-4f9e-9594-b1e08…
+Sep 03 09:43:13 rakpios npm[2559809]: 9:43:13 AM [express] GET /api/connection 304 in 3ms :: {"id":"295e288b-b218-415f-a4cf-dab575554977",…
+Sep 03 09:43:16 rakpios npm[2559809]: 9:43:16 AM [express] GET /api/base-station/status 304 in 3ms :: {"id":"b50b8d66-13dd-4f9e-9594-b1e08…
+Sep 03 09:43:23 rakpios npm[2559809]: 9:43:23 AM [express] GET /api/connection 304 in 2ms :: {"id":"295e288b-b218-415f-a4cf-dab575554977",…
+~
