@@ -52,17 +52,22 @@ else
     echo "✅ Git already installed"
 fi
 
-# Create installation directory
+# Setup installation directory
 INSTALL_DIR="/opt/mioty-web-console"
-echo "📁 Creating installation directory: $INSTALL_DIR"
-sudo mkdir -p "$INSTALL_DIR"
-sudo chown $(whoami):$(whoami) "$INSTALL_DIR"
+echo "📁 Setting up installation directory: $INSTALL_DIR"
+
+# Remove existing installation if present
+if [ -d "$INSTALL_DIR" ]; then
+    echo "🗑️  Removing existing installation..."
+    sudo rm -rf "$INSTALL_DIR"
+fi
 
 echo "⬇️  Installing mioty web console..."
 
 # Clone the repository
 echo "📥 Cloning repository..."
 git clone https://github.com/plasmonized/mioty-UI.git "$INSTALL_DIR"
+sudo chown -R $(whoami):$(whoami) "$INSTALL_DIR"
 
 cd "$INSTALL_DIR"
 
