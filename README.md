@@ -24,7 +24,7 @@ A modern web interface for managing Miromico Miro EdgeCard mioty base stations o
 
 ### One-Command Install
 ```bash
-curl -fsSL https://raw.githubusercontent.com/[your-username]/mioty-web-console/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/plasmonized/mioty-UI/main/install.sh | bash
 ```
 
 ### Manual Installation
@@ -42,7 +42,7 @@ curl -fsSL https://raw.githubusercontent.com/[your-username]/mioty-web-console/m
 2. **Clone and Install**
    ```bash
    # Clone the repository
-   git clone https://github.com/[your-username]/mioty-web-console.git
+   git clone https://github.com/plasmonized/mioty-UI.git
    cd mioty-web-console
    
    # Install dependencies
@@ -66,7 +66,7 @@ curl -fsSL https://raw.githubusercontent.com/[your-username]/mioty-web-console/m
 After pushing updates to Git, update your installation:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/[your-username]/mioty-web-console/main/update.sh | bash
+curl -sSL https://raw.githubusercontent.com/plasmonized/mioty-UI/main/update.sh | bash
 ```
 
 The updater will:
