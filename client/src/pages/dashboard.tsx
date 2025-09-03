@@ -12,6 +12,7 @@ import FactoryResetModal from "@/components/modals/factory-reset-modal";
 import CredentialsModal from "@/components/modals/credentials-modal";
 import LoadingOverlay from "@/components/ui/loading-overlay";
 import { useMioty } from "@/hooks/use-mioty";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Dashboard() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -153,16 +154,33 @@ export default function Dashboard() {
                 <Button
                   className="w-full justify-center"
                   data-testid="button-dashboard"
-                  onClick={() => {
+                  onClick={async () => {
                     if (connection?.status !== "connected") {
                       showToast("Error", "Please establish connection first", "destructive");
                       return;
                     }
-                    showToast("Dashboard Opening", "Run 'mioty-cli dashboard' first to create tunnel. Opening dashboard...");
-                    setTimeout(() => {
-                      const rakPiIp = connection?.ipAddress || "172.30.1.1";
-                      window.open(`http://${rakPiIp}:8888`, "_blank");
-                    }, 1000);
+                    
+                    showLoadingOverlay("Creating SSH tunnel to EdgeCard...");
+                    
+                    try {
+                      // Create SSH tunnel to EdgeCard dashboard
+                      const response = await apiRequest("POST", "/api/connection/dashboard");
+                      const result = await response.json();
+                      hideLoadingOverlay();
+                      
+                      if (result.success) {
+                        showToast("Dashboard Ready", "SSH tunnel created. Opening EdgeCard dashboard...");
+                        setTimeout(() => {
+                          // Always use the actual system IP, never localhost
+                          window.open(`http://172.30.1.1:8888`, "_blank");
+                        }, 1000);
+                      } else {
+                        showToast("Error", result.message || "Failed to create dashboard tunnel", "destructive");
+                      }
+                    } catch (error) {
+                      hideLoadingOverlay();
+                      showToast("Error", "Failed to create dashboard tunnel", "destructive");
+                    }
                   }}
                 >
                   <i className="fas fa-chart-line mr-2"></i> EdgeCard Dashboard

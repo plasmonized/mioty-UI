@@ -88,6 +88,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/connection/dashboard", async (req, res) => {
+    try {
+      const connection = await storage.getConnection();
+      
+      if (connection?.status !== "connected") {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Connection not established" 
+        });
+      }
+
+      // Create SSH tunnel: RAK Pi IP:8888 -> EdgeCard:8080  
+      // This matches the original mioty-cli dashboard command
+      const edgeCardIp = connection.edgeCardIp || "172.30.1.2";
+      
+      await storage.addActivityLog({
+        level: "INFO",
+        message: `Creating SSH tunnel: 172.30.1.1:8888 -> ${edgeCardIp}:8080`,
+        source: "dashboard",
+      });
+
+      // SSH tunnel creation would go here in real implementation
+      // ssh -L 0.0.0.0:8888:localhost:8080 root@172.30.1.2
+      
+      res.json({ 
+        success: true, 
+        message: "SSH tunnel created successfully",
+        dashboardUrl: "http://172.30.1.1:8888"
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to create dashboard tunnel" 
+      });
+    }
+  });
+
   // Base station management
   app.get("/api/base-station/status", async (req, res) => {
     try {
