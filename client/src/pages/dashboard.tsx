@@ -170,7 +170,7 @@ export default function Dashboard() {
                       
                       if (result.success) {
                         showToast("SSH Tunnel Created", 
-                          "Please open your browser and go to: http://172.30.1.1:8888 to access the EdgeCard dashboard");
+                          `Please open your browser and go to: http://${window.location.hostname}:8888 to access the EdgeCard dashboard`);
                       } else {
                         showToast("Error", result.message || "Failed to create dashboard tunnel", "destructive");
                       }
