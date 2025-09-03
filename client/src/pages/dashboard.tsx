@@ -169,11 +169,8 @@ export default function Dashboard() {
                       hideLoadingOverlay();
                       
                       if (result.success) {
-                        showToast("Dashboard Ready", "SSH tunnel created. Opening EdgeCard dashboard...");
-                        setTimeout(() => {
-                          // Always use the actual system IP, never localhost
-                          window.open(`http://172.30.1.1:8888`, "_blank");
-                        }, 1000);
+                        showToast("SSH Tunnel Created", 
+                          "Please open your browser and go to: http://172.30.1.1:8888 to access the EdgeCard dashboard");
                       } else {
                         showToast("Error", result.message || "Failed to create dashboard tunnel", "destructive");
                       }
