@@ -59,6 +59,11 @@ sudo mkdir -p "$INSTALL_DIR"
 sudo chown $(whoami):$(whoami) "$INSTALL_DIR"
 
 echo "⬇️  Installing mioty web console..."
+
+# Clone the repository
+echo "📥 Cloning repository..."
+git clone https://github.com/plasmonized/mioty-UI.git "$INSTALL_DIR"
+
 cd "$INSTALL_DIR"
 
 # Install dependencies
