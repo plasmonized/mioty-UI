@@ -1,0 +1,103 @@
+
+rak@rakpios:/opt/mioty-web-console $
+rak@rakpios:/opt/mioty-web-console $ git pull origin main && ./update.sh
+remote: Enumerating objects: 11, done.
+remote: Counting objects: 100% (11/11), done.
+remote: Compressing objects: 100% (1/1), done.
+remote: Total 7 (delta 6), reused 7 (delta 6), pack-reused 0 (from 0)
+Unpacking objects: 100% (7/7), 1.65 KiB | 210.00 KiB/s, done.
+From https://github.com/plasmonized/mioty-UI
+ * branch            main       -> FETCH_HEAD
+   01a5a15..ca25230  main       -> origin/main
+Updating 01a5a15..ca25230
+Fast-forward
+ server/routes.ts | 44 ++++++++++++++++++++++++++++++++++++++++++--
+ update.sh        |  2 +-
+ 2 files changed, 43 insertions(+), 3 deletions(-)
+-bash: ./update.sh: Permission denied
+# Ausführungsrechte setzen:
+chmod +x ./update.sh
+
+# Dann nochmal ausführen:
+./update.sh
+-bash: rak@rakpios:/opt/mioty-web-console: No such file or directory
+-bash: remote:: command not found
+-bash: syntax error near unexpected token `('
+-bash: syntax error near unexpected token `('
+-bash: syntax error near unexpected token `('
+-bash: syntax error near unexpected token `('
+-bash: From: command not found
+-bash: attached_assets: command not found
+-bash: origin/main: No such file or directory
+-bash: Updating: command not found
+-bash: Fast-forward: command not found
+-bash: 44: command not found
+-bash: server/routes.ts: Permission denied
+-bash: update.sh: command not found
+-bash: 2: command not found
+-bash: syntax error near unexpected token `('
+-bash: -bash:: command not found
+🔄 mioty Web Console Updater
+=============================
+
+📁 Updating from directory: /opt/mioty-web-console
+⏹️  Stopping mioty web console service...
+[sudo] password for rak:
+💾 Creating backup of current version...
+✅ Backup created at: /opt/mioty-web-console_backup_20250903_105811
+⬇️  Fetching latest version from Git...
+HEAD is now at ca25230 Establish SSH connection to manage base station configuration
+📦 Installing dependencies...
+npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+
+added 493 packages, and audited 494 packages in 30s
+
+66 packages are looking for funding
+  run `npm fund` for details
+
+11 vulnerabilities (3 low, 8 moderate)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+🔨 Building application...
+vite v5.4.19 building for production...
+Browserslist: browsers data (caniuse-lite) is 11 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ 1834 modules transformed.
+../dist/public/index.html                   2.20 kB │ gzip:   0.86 kB
+../dist/public/assets/index-BqsobV4X.css   60.84 kB │ gzip:  10.86 kB
+../dist/public/assets/index-DNWHiqR3.js   501.56 kB │ gzip: 152.72 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 20.75s
+
+  dist/index.js  29.0kb
+
+⚡ Done in 16ms
+🔐 Setting file permissions...
+▶️  Starting mioty web console service...
+
+🎉 Update completed successfully!
+
+🌐 mioty web console is now running:
+   Local:   http://localhost:5000
+   Network: http://192.168.0.157:5000
+
+🔧 Service management commands:
+   Status:  sudo systemctl status mioty-web-console
+   Logs:    sudo journalctl -u mioty-web-console -f
+
+📁 Installation directory: /opt/mioty-web-console
+💾 Backup available at: /opt/mioty-web-console_backup_20250903_105811
+
+✅ mioty web console has been updated and is running.
