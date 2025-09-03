@@ -160,7 +160,8 @@ export default function Dashboard() {
                     }
                     showToast("Dashboard Opening", "Dashboard tunnel created. Opening in new tab...");
                     setTimeout(() => {
-                      window.open("http://localhost:8888", "_blank");
+                      const currentHost = window.location.hostname;
+                      window.open(`http://${currentHost}:8888`, "_blank");
                     }, 1000);
                   }}
                 >
