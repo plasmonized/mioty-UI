@@ -73,7 +73,7 @@ cd "$INSTALL_DIR"
 
 # Install dependencies
 echo "📦 Installing dependencies..."
-npm install --production
+npm install
 
 # Build the application
 echo "🔨 Building application..."
