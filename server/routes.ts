@@ -124,10 +124,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           "-o", "HostKeyAlgorithms=+ssh-rsa",
           "-o", "StrictHostKeyChecking=no", 
           "-o", "UserKnownHostsFile=/dev/null",
+          "-o", "ServerAliveInterval=30",
+          "-o", "ServerAliveCountMax=3",
+          "-i", "/home/rak/.ssh/id_rsa",
           `root@${edgeCardIp}`
         ], {
           stdio: ["ignore", "pipe", "pipe"],
-          detached: true
+          detached: false  // Keep attached to monitor errors
         });
 
         sshProcess.on("error", async (err) => {
@@ -142,6 +145,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await storage.addActivityLog({
             level: "INFO", 
             message: "SSH tunnel process started successfully",
+            source: "dashboard",
+          });
+        });
+
+        sshProcess.on("close", async (code) => {
+          await storage.addActivityLog({
+            level: code === 0 ? "INFO" : "ERROR",
+            message: `SSH tunnel closed with code: ${code}`,
+            source: "dashboard",
+          });
+        });
+
+        sshProcess.stderr?.on("data", async (data) => {
+          await storage.addActivityLog({
+            level: "ERROR",
+            message: `SSH tunnel stderr: ${data.toString().trim()}`,
             source: "dashboard",
           });
         });
