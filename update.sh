@@ -60,7 +60,7 @@ npm ci
 
 # Build the application
 echo "🔨 Building application..."
-npm run build
+npx vite build && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 
 # Update file permissions
 echo "🔐 Setting file permissions..."
