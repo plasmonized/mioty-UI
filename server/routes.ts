@@ -57,8 +57,8 @@ async function getEdgeCardConfig(edgeCardIp: string) {
   try {
     // Get system information
     const hostname = await executeSSHCommand(edgeCardIp, "hostname");
-    const uptime = await executeSSHCommand(edgeCardIp, "uptime -p");
-    const memInfo = await executeSSHCommand(edgeCardIp, "free | grep Mem | awk '{printf(\"%.0f%%\", $3/$2 * 100.0)}'")
+    const uptime = await executeSSHCommand(edgeCardIp, "uptime");
+    const memInfo = await executeSSHCommand(edgeCardIp, "free | head -2 | tail -1 | awk '{print int($3/$2*100)\"%\"}' 2>/dev/null || echo 'unknown'")
     const edgeCardModel = await executeSSHCommand(edgeCardIp, "cat /proc/device-tree/model 2>/dev/null || echo 'EDGE-GW-MY-868'");
     
     // Try to get mioty config if available
@@ -71,9 +71,9 @@ async function getEdgeCardConfig(edgeCardIp: string) {
       parsedConfig = {};
     }
 
-    // Get process status
-    const miotyStatus = await executeSSHCommand(edgeCardIp, "systemctl is-active mioty 2>/dev/null || echo 'inactive'");
-    const isAutoStart = await executeSSHCommand(edgeCardIp, "systemctl is-enabled mioty 2>/dev/null || echo 'disabled'");
+    // Get process status (BusyBox compatible)
+    const miotyStatus = await executeSSHCommand(edgeCardIp, "systemctl is-active mioty 2>/dev/null || (ps | grep mioty | grep -v grep >/dev/null && echo 'active' || echo 'inactive')");
+    const isAutoStart = await executeSSHCommand(edgeCardIp, "systemctl is-enabled mioty 2>/dev/null || echo 'unknown'");
     
     return {
       hostname: hostname || "Sentinum Edge mioty",
