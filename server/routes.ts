@@ -122,7 +122,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           "-o", "HostKeyAlgorithms=+ssh-rsa",
           "-o", "StrictHostKeyChecking=no",
           "-o", "UserKnownHostsFile=/dev/null",
-          "-i", `${process.env.HOME}/.ssh/id_rsa`,
+          "-i", "/home/rak/.ssh/id_rsa",
           "-L", "0.0.0.0:8888:localhost:8080",
           "-N", // No remote commands (for background)
           `root@${edgeCardIp}`

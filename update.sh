@@ -54,6 +54,27 @@ if [ "$NODE_VERSION" -lt 18 ]; then
     exit 1
 fi
 
+# Ensure SSH keys exist for EdgeCard access
+echo "🔑 Checking SSH keys for EdgeCard access..."
+SSH_DIR="/home/$(whoami)/.ssh"
+SSH_KEY="$SSH_DIR/id_rsa"
+
+if [ ! -d "$SSH_DIR" ]; then
+    mkdir -p "$SSH_DIR"
+    chmod 700 "$SSH_DIR"
+    echo "✅ SSH directory created"
+fi
+
+if [ ! -f "$SSH_KEY" ]; then
+    echo "🔐 Generating SSH key pair..."
+    ssh-keygen -t rsa -b 2048 -f "$SSH_KEY" -N "" -q
+    chmod 600 "$SSH_KEY"
+    chmod 644 "$SSH_KEY.pub"
+    echo "✅ SSH keys generated successfully"
+else
+    echo "✅ SSH keys already exist"
+fi
+
 # Install/update dependencies
 echo "📦 Installing dependencies..."
 npm ci

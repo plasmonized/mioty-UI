@@ -52,6 +52,35 @@ else
     echo "✅ Git already installed"
 fi
 
+# Install SSH if not present (needed for EdgeCard dashboard access)
+if ! command -v ssh &> /dev/null; then
+    echo "📥 Installing OpenSSH client..."
+    sudo apt-get install -y openssh-client
+else
+    echo "✅ SSH already installed"
+fi
+
+# Setup SSH keys for EdgeCard access
+echo "🔑 Setting up SSH keys for EdgeCard access..."
+SSH_DIR="/home/$(whoami)/.ssh"
+SSH_KEY="$SSH_DIR/id_rsa"
+
+if [ ! -d "$SSH_DIR" ]; then
+    mkdir -p "$SSH_DIR"
+    chmod 700 "$SSH_DIR"
+    echo "✅ SSH directory created"
+fi
+
+if [ ! -f "$SSH_KEY" ]; then
+    echo "🔐 Generating SSH key pair..."
+    ssh-keygen -t rsa -b 2048 -f "$SSH_KEY" -N "" -q
+    chmod 600 "$SSH_KEY"
+    chmod 644 "$SSH_KEY.pub"
+    echo "✅ SSH keys generated successfully"
+else
+    echo "✅ SSH keys already exist"
+fi
+
 # Setup installation directory
 INSTALL_DIR="/opt/mioty-web-console"
 echo "📁 Setting up installation directory: $INSTALL_DIR"

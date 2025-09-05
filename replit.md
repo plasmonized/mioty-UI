@@ -9,12 +9,17 @@ This is a mioty wireless communication system dashboard built as a full-stack we
 - **SSH Configuration**: Implemented exact SSH options from original mioty-cli:
   - `ConnectTimeout=10`
   - `HostKeyAlgorithms=+ssh-rsa` 
-  - `IdentityFile=/dev/null` (prevents SSH key errors)
-  - `PasswordAuthentication=yes` (uses password instead of keys)
-  - `PubkeyAuthentication=no` (disables public key auth)
+  - `IdentityFile=/home/rak/.ssh/id_rsa` (uses automatically generated SSH keys)
+  - `StrictHostKeyChecking=no` and `UserKnownHostsFile=/dev/null` for automatic connection
 - **SSH Tunnel**: Creates tunnel on `0.0.0.0:8888` forwarding to EdgeCard `localhost:8080`
 - **Error Handling**: Comprehensive SSH process monitoring with detailed error logging
 - **Port Management**: Automatic cleanup of existing SSH tunnels before creating new ones
+- **Automatic SSH Setup**: Installation and update scripts now automatically:
+  - Install OpenSSH client if needed
+  - Create SSH directory with proper permissions (700)
+  - Generate RSA key pair (2048-bit) for EdgeCard authentication
+  - Set correct file permissions (600 for private key, 644 for public key)
+- **Standalone Operation**: Web console is fully independent - no need for original mioty-cli installation
 
 # User Preferences
 
