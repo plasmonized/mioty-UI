@@ -44,11 +44,11 @@ async function executeSSHCommand(edgeCardIp: string, command: string): Promise<s
       reject(err);
     });
 
-    // Timeout nach 10 Sekunden
+    // Timeout nach 5 Minuten
     setTimeout(() => {
       sshProcess.kill();
       reject(new Error("SSH command timeout"));
-    }, 10000);
+    }, 300000); // 5 minutes
   });
 }
 
@@ -330,7 +330,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             source: "dashboard",
           });
           sshProcess.kill('SIGTERM');
-        }, 15000); // 15 second timeout
+        }, 300000); // 5 minutes timeout
 
         sshProcess.on("close", () => {
           clearTimeout(timeoutId);
