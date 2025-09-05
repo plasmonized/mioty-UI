@@ -373,10 +373,10 @@ class MiotyCliCommands {
       for (let i = 0; i < methods.length; i++) {
         try {
           const result = await this.executeLocalCommand(methods[i]);
-          const interface = result.trim();
-          if (interface) {
-            await ExtendedLogger.log("INFO", `✅ Found interface using method ${i + 1}: ${interface}`, "networking");
-            return interface;
+          const iface = result.trim();
+          if (iface) {
+            await ExtendedLogger.log("INFO", `✅ Found interface using method ${i + 1}: ${iface}`, "networking");
+            return iface;
           }
           await ExtendedLogger.log("DEBUG", `Method ${i + 1} returned empty result`, "networking");
         } catch (error) {

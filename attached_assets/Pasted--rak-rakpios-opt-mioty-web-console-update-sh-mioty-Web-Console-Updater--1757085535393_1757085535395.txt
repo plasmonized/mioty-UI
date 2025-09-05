@@ -1,0 +1,102 @@
+
+rak@rakpios:/opt/mioty-web-console $ ./update.sh
+🔄 mioty Web Console Updater
+=============================
+
+📁 Updating from directory: /opt/mioty-web-console
+⏹️  Stopping mioty web console service...
+💾 Creating backup of current version...
+✅ Backup created at: /opt/mioty-web-console_backup_20250905_161659
+⬇️  Fetching latest version from Git...
+remote: Enumerating objects: 10, done.
+remote: Counting objects: 100% (10/10), done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 6 (delta 4), reused 6 (delta 4), pack-reused 0 (from 0)
+Unpacking objects: 100% (6/6), 2.58 KiB | 264.00 KiB/s, done.
+From https://github.com/plasmonized/mioty-UI
+   82adf8a..8834728  main       -> origin/main
+HEAD is now at 8834728 Improve network interface detection and connection handling for stability
+🔑 Checking SSH keys for EdgeCard access...
+✅ SSH keys already exist
+📦 Installing dependencies...
+npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+
+added 497 packages, and audited 498 packages in 32s
+
+66 packages are looking for funding
+  run `npm fund` for details
+
+11 vulnerabilities (3 low, 8 moderate)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+🔨 Building application...
+vite v5.4.19 building for production...
+transforming (34) ../node_modules/@radix-ui/react-tooltip/dist/index.mjsBrowserslist: browsers data (caniuse-lite) is 11 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ 1834 modules transformed.
+../dist/public/index.html                   2.20 kB │ gzip:   0.86 kB
+../dist/public/assets/index-BqsobV4X.css   60.84 kB │ gzip:  10.86 kB
+../dist/public/assets/index-2Fnq3zx2.js   502.68 kB │ gzip: 152.95 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 20.61s
+✘ [ERROR] "interface" is a reserved word and cannot be used in strict mode
+
+    server/routes.ts:376:16:
+      376 │           const interface = result.trim();
+          ╵                 ~~~~~~~~~
+
+  All code inside a class is implicitly in strict mode
+
+    server/routes.ts:225:0:
+      225 │ class MiotyCliCommands {
+          ╵ ~~~~~
+
+✘ [ERROR] "interface" is a reserved word and cannot be used in strict mode
+
+    server/routes.ts:377:14:
+      377 │           if (interface) {
+          ╵               ~~~~~~~~~
+
+  All code inside a class is implicitly in strict mode
+
+    server/routes.ts:225:0:
+      225 │ class MiotyCliCommands {
+          ╵ ~~~~~
+
+✘ [ERROR] "interface" is a reserved word and cannot be used in strict mode
+
+    server/routes.ts:378:91:
+      378 │             await ExtendedLogger.log("INFO", `✅ Found interface using method ${i + 1}: ${interface}`, "networking");
+          ╵                                                                                          ~~~~~~~~~
+
+  All code inside a class is implicitly in strict mode
+
+    server/routes.ts:225:0:
+      225 │ class MiotyCliCommands {
+          ╵ ~~~~~
+
+✘ [ERROR] "interface" is a reserved word and cannot be used in strict mode
+
+    server/routes.ts:379:19:
+      379 │             return interface;
+          ╵                    ~~~~~~~~~
+
+  All code inside a class is implicitly in strict mode
+
+    server/routes.ts:225:0:
+      225 │ class MiotyCliCommands {
+          ╵ ~~~~~
+
+4 errors
