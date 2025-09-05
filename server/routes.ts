@@ -292,7 +292,7 @@ class MiotyCliCommands {
       await ExtendedLogger.logStep("Network Connection Setup", "SUCCESS");
       
     } catch (error) {
-      await ExtendedLogger.logStep("Network Connection Setup", "ERROR", { error: error.toString() });
+      await ExtendedLogger.logStep("Network Connection Setup", "ERROR", { error: String(error) });
       throw new Error(`Setup connection failed: ${error}`);
     }
   }
@@ -306,7 +306,7 @@ class MiotyCliCommands {
       await ExtendedLogger.logCommand(`nmcli connection up ${this.CONNECTION_NAME}`, result);
       await ExtendedLogger.logStep("Starting Network Connection", "SUCCESS");
     } catch (error) {
-      await ExtendedLogger.logStep("Starting Network Connection", "ERROR", { error: error.toString() });
+      await ExtendedLogger.logStep("Starting Network Connection", "ERROR", { error: String(error) });
       throw error;
     }
   }
@@ -320,7 +320,7 @@ class MiotyCliCommands {
       await ExtendedLogger.logCommand(`nmcli connection modify ${this.CONNECTION_NAME} connection.autoconnect yes`, result);
       await ExtendedLogger.logStep("Enabling Auto-Connect", "SUCCESS");
     } catch (error) {
-      await ExtendedLogger.logStep("Enabling Auto-Connect", "ERROR", { error: error.toString() });
+      await ExtendedLogger.logStep("Enabling Auto-Connect", "ERROR", { error: String(error) });
       throw error;
     }
   }
@@ -334,7 +334,7 @@ class MiotyCliCommands {
       await ExtendedLogger.logCommand("systemctl start mioty_bs", result);
       await ExtendedLogger.logStep("Starting mioty_bs Service", "SUCCESS");
     } catch (error) {
-      await ExtendedLogger.logStep("Starting mioty_bs Service", "ERROR", { error: error.toString() });
+      await ExtendedLogger.logStep("Starting mioty_bs Service", "ERROR", { error: String(error) });
       throw error;
     }
   }
@@ -348,7 +348,7 @@ class MiotyCliCommands {
       await ExtendedLogger.logCommand("systemctl enable mioty_bs", result);
       await ExtendedLogger.logStep("Enabling mioty_bs AutoStart", "SUCCESS");
     } catch (error) {
-      await ExtendedLogger.logStep("Enabling mioty_bs AutoStart", "ERROR", { error: error.toString() });
+      await ExtendedLogger.logStep("Enabling mioty_bs AutoStart", "ERROR", { error: String(error) });
       throw error;
     }
   }
@@ -519,14 +519,13 @@ class MiotyWatchdog {
   private setupCompleted: boolean = false;
   
   async start() {
+    // Start automatic setup immediately
+    setTimeout(() => this.autoSetupAndConnect(), 2000); // Start after 2 seconds
+    
     this.connectionInterval = setInterval(() => this.autoSetupAndConnect(), 10000); // Setup every 10s
     this.watchdogInterval = setInterval(() => this.watchdog(), 30000); // Monitor every 30s
     
-    await storage.addActivityLog({
-      level: "INFO",
-      message: "Complete mioty-cli Automation System started",
-      source: "watchdog",
-    });
+    await ExtendedLogger.log("INFO", "🚀 Complete mioty-cli Automation System started - will auto-setup in 2 seconds", "startup");
   }
   
   stop() {
@@ -545,9 +544,15 @@ class MiotyWatchdog {
         if (!this.miotyCommands && this.edgeCardIp) {
           this.miotyCommands = new MiotyCliCommands(this.edgeCardIp);
         }
+        
+        // CRITICAL FIX: Run automatic setup even if connection exists!
+        if (!this.setupCompleted && this.edgeCardIp && this.miotyCommands) {
+          await ExtendedLogger.log("INFO", "🚀 Triggering automatic mioty-cli setup (connection exists)", "automation");
+          await this.performCompleteSetup();
+        }
       }
     } catch (error) {
-      // Silent retry
+      await ExtendedLogger.log("WARN", `AutoSetup attempt failed: ${String(error)}`, "automation");
     }
   }
   
@@ -619,7 +624,7 @@ class MiotyWatchdog {
       
     } catch (error) {
       await ExtendedLogger.logStep("Complete mioty-cli Automation Setup", "ERROR", {
-        error: error.toString(),
+        error: String(error),
         setupCompleted: false,
         timestamp: new Date().toISOString()
       });
@@ -703,7 +708,7 @@ class MiotyWatchdog {
       
     } catch (error) {
       await ExtendedLogger.logStep("Watchdog Monitoring", "ERROR", {
-        error: error.toString(),
+        error: String(error),
         edgeCardIp: this.edgeCardIp,
         setupCompleted: this.setupCompleted,
         timestamp: new Date().toISOString()

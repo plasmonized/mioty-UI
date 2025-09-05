@@ -1,0 +1,153 @@
+Activity Log
+Clear
+Export
+18:16:37
+DEBUG
+automation Details: { "error": "Error: Setup connection failed: Error: Dynamic require of \"child_process\" is not supported", "setupCompleted": false, "timestamp": "2025-09-05T16:16:37.145Z" }
+18:16:37
+ERROR
+ERROR: Complete mioty-cli Automation Setup
+18:16:37
+DEBUG
+automation Details: { "error": "Error: Dynamic require of \"child_process\" is not supported" }
+18:16:37
+ERROR
+ERROR: Network Connection Setup
+18:16:37
+INFO
+START: Creating NetworkManager Connection
+18:16:37
+INFO
+Connection exists: false
+18:16:37
+DEBUG
+Connection check failed: Error: Dynamic require of "child_process" is not supported
+18:16:37
+INFO
+External interface: eth0
+18:16:37
+DEBUG
+automation Details: { "interface": "eth0" }
+18:16:37
+INFO
+SUCCESS: Interface Detection
+18:16:37
+WARN
+⚠️ Using fallback interface: eth0
+18:16:37
+ERROR
+Failed to list interfaces
+18:16:37
+DEBUG
+Method 4 failed: Error: Dynamic require of "child_process" is not supported
+18:16:37
+DEBUG
+Method 3 failed: Error: Dynamic require of "child_process" is not supported
+18:16:37
+DEBUG
+Method 2 failed: Error: Dynamic require of "child_process" is not supported
+18:16:37
+DEBUG
+Method 1 failed: Error: Dynamic require of "child_process" is not supported
+18:16:37
+DEBUG
+🔍 Searching for network interfaces...
+18:16:37
+INFO
+START: Interface Detection
+18:16:37
+INFO
+START: Network Connection Setup
+18:16:37
+DEBUG
+automation Details: { "edgeCardIp": "172.30.1.2", "timestamp": "2025-09-05T16:16:37.144Z" }
+18:16:37
+INFO
+START: Complete mioty-cli Automation Setup
+18:16:37
+CONN
+EdgeCard discovered at 172.30.1.2
+18:16:27
+DEBUG
+automation Details: { "error": "Error: Setup connection failed: Error: Dynamic require of \"child_process\" is not supported", "setupCompleted": false, "timestamp": "2025-09-05T16:16:27.179Z" }
+18:16:27
+ERROR
+ERROR: Complete mioty-cli Automation Setup
+18:16:27
+DEBUG
+automation Details: { "error": "Error: Dynamic require of \"child_process\" is not supported" }
+18:16:27
+ERROR
+ERROR: Network Connection Setup
+18:16:27
+INFO
+START: Creating NetworkManager Connection
+18:16:27
+INFO
+Connection exists: false
+18:16:27
+DEBUG
+Connection check failed: Error: Dynamic require of "child_process" is not supported
+18:16:27
+INFO
+External interface: eth0
+18:16:27
+DEBUG
+automation Details: { "interface": "eth0" }
+18:16:27
+INFO
+SUCCESS: Interface Detection
+18:16:27
+WARN
+⚠️ Using fallback interface: eth0
+18:16:27
+ERROR
+Failed to list interfaces
+18:16:27
+DEBUG
+Method 4 failed: Error: Dynamic require of "child_process" is not supported
+18:16:27
+DEBUG
+Method 3 failed: Error: Dynamic require of "child_process" is not supported
+18:16:27
+DEBUG
+Method 2 failed: Error: Dynamic require of "child_process" is not supported
+18:16:27
+DEBUG
+Method 1 failed: Error: Dynamic require of "child_process" is not supported
+18:16:27
+DEBUG
+🔍 Searching for network interfaces...
+18:16:27
+INFO
+START: Interface Detection
+18:16:27
+INFO
+START: Network Connection Setup
+18:16:27
+DEBUG
+automation Details: { "edgeCardIp": "172.30.1.2", "timestamp": "2025-09-05T16:16:27.178Z" }
+18:16:27
+INFO
+START: Complete mioty-cli Automation Setup
+18:16:27
+CONN
+EdgeCard discovered at 172.30.1.2
+18:16:25
+INFO
+Base station status updated from EdgeCard: running
+18:16:24
+INFO
+Connection setup completed successfully
+18:16:23
+INFO
+Setting up connection and firewall rules
+18:16:21
+INFO
+Configuration updated from EdgeCard: mioty-bsm
+18:16:19
+INFO
+Configuration updated from EdgeCard: mioty-bsm
+18:16:19
+DEBUG
+✅ Watchdog cycle completed
