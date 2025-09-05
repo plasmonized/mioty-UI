@@ -128,7 +128,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Kill any existing SSH tunnel on port 8888
         try {
-          await spawn("pkill", ["-f", "8888:localhost:8080"], { stdio: "ignore" });
+          const killProcess = spawn("pkill", ["-f", "8888:localhost:8080"], { stdio: "ignore" });
+          await new Promise(resolve => {
+            killProcess.on('close', () => resolve(undefined));
+            killProcess.on('error', () => resolve(undefined));
+            // Timeout after 2 seconds
+            setTimeout(() => resolve(undefined), 2000);
+          });
           await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
         } catch (e) { /* ignore */ }
 
