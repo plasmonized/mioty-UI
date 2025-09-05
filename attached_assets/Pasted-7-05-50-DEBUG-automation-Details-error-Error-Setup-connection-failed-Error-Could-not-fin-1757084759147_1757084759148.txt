@@ -1,0 +1,150 @@
+7:05:50
+DEBUG
+automation Details: { "error": "Error: Setup connection failed: Error: Could not find interface to card", "setupCompleted": false, "timestamp": "2025-09-05T15:05:50.326Z" }
+17:05:50
+ERROR
+ERROR: Complete mioty-cli Automation Setup
+17:05:50
+DEBUG
+automation Details: { "error": "Error: Could not find interface to card" }
+17:05:50
+ERROR
+ERROR: Network Connection Setup
+17:05:50
+DEBUG
+automation Details: { "error": "No Miromico interface found" }
+17:05:50
+ERROR
+ERROR: Interface Detection
+17:05:50
+INFO
+START: Interface Detection
+17:05:50
+INFO
+START: Network Connection Setup
+17:05:50
+DEBUG
+automation Details: { "edgeCardIp": "172.30.1.2", "timestamp": "2025-09-05T15:05:50.325Z" }
+17:05:50
+INFO
+START: Complete mioty-cli Automation Setup
+17:05:50
+CONN
+EdgeCard discovered at 172.30.1.2
+17:05:50
+DEBUG
+watchdog Details: { "edgeCardIp": "172.30.1.2", "setupCompleted": false, "timestamp": "2025-09-05T15:05:50.081Z" }
+17:05:50
+DEBUG
+🔍 Watchdog cycle started
+17:05:40
+DEBUG
+automation Details: { "error": "Error: Setup connection failed: Error: Could not find interface to card", "setupCompleted": false, "timestamp": "2025-09-05T15:05:40.332Z" }
+17:05:40
+ERROR
+ERROR: Complete mioty-cli Automation Setup
+17:05:40
+DEBUG
+automation Details: { "error": "Error: Could not find interface to card" }
+17:05:40
+ERROR
+ERROR: Network Connection Setup
+17:05:40
+DEBUG
+automation Details: { "error": "No Miromico interface found" }
+17:05:40
+ERROR
+ERROR: Interface Detection
+17:05:40
+INFO
+START: Interface Detection
+17:05:40
+INFO
+START: Network Connection Setup
+17:05:40
+DEBUG
+automation Details: { "edgeCardIp": "172.30.1.2", "timestamp": "2025-09-05T15:05:40.331Z" }
+17:05:40
+INFO
+START: Complete mioty-cli Automation Setup
+17:05:40
+CONN
+EdgeCard discovered at 172.30.1.2
+17:05:30
+DEBUG
+automation Details: { "error": "Error: Setup connection failed: Error: Could not find interface to card", "setupCompleted": false, "timestamp": "2025-09-05T15:05:30.329Z" }
+17:05:30
+ERROR
+ERROR: Complete mioty-cli Automation Setup
+17:05:30
+DEBUG
+automation Details: { "error": "Error: Could not find interface to card" }
+17:05:30
+ERROR
+ERROR: Network Connection Setup
+17:05:30
+DEBUG
+automation Details: { "error": "No Miromico interface found" }
+17:05:30
+ERROR
+ERROR: Interface Detection
+17:05:30
+INFO
+START: Interface Detection
+17:05:30
+INFO
+START: Network Connection Setup
+17:05:30
+DEBUG
+automation Details: { "edgeCardIp": "172.30.1.2", "timestamp": "2025-09-05T15:05:30.328Z" }
+17:05:30
+INFO
+START: Complete mioty-cli Automation Setup
+17:05:30
+CONN
+EdgeCard discovered at 172.30.1.2
+17:05:21
+DEBUG
+✅ Watchdog cycle completed
+17:05:21
+DEBUG
+💚 Service running normally: active
+17:05:21
+INFO
+🔋 Service Status Check: mioty_bs = active
+17:05:21
+DEBUG
+watchdog Details: { "hostname": "mioty-bsm", "miotyStatus": "running", "autoStart": true, "uptime": "16:52:02 up 7 days, 4:40, load average: 0.92, 0.98, 1.06", "memoryUsage": "34%" }
+17:05:21
+DEBUG
+📊 EdgeCard data retrieved
+17:05:20
+DEBUG
+automation Details: { "error": "Error: Setup connection failed: Error: Could not find interface to card", "setupCompleted": false, "timestamp": "2025-09-05T15:05:20.332Z" }
+17:05:20
+ERROR
+ERROR: Complete mioty-cli Automation Setup
+17:05:20
+DEBUG
+automation Details: { "error": "Error: Could not find interface to card" }
+17:05:20
+ERROR
+ERROR: Network Connection Setup
+17:05:20
+DEBUG
+automation Details: { "error": "No Miromico interface found" }
+17:05:20
+ERROR
+ERROR: Interface Detection
+17:05:20
+INFO
+START: Interface Detection
+17:05:20
+INFO
+START: Network Connection Setup
+17:05:20
+DEBUG
+automation Details: { "edgeCardIp": "172.30.1.2", "timestamp": "2025-09-05T15:05:20.331Z" }
+17:05:20
+INFO
+START: Complete mioty-cli Automation Setup
