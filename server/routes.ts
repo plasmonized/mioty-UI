@@ -112,14 +112,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create actual SSH tunnel to EdgeCard
       try {
+        // Check if SSH key exists
+        const { spawn: spawnSync } = require("child_process");
+        const fs = require("fs");
+        
+        if (!fs.existsSync("/home/rak/.ssh/id_rsa")) {
+          await storage.addActivityLog({
+            level: "ERROR",
+            message: "SSH private key not found at /home/rak/.ssh/id_rsa",
+            source: "dashboard",
+          });
+          return res.status(500).json({ 
+            success: false, 
+            message: "SSH key not found. Please run setup again." 
+          });
+        }
+
         // Kill any existing SSH tunnel on port 8888
         try {
           await spawn("pkill", ["-f", "8888:localhost:8080"], { stdio: "ignore" });
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
         } catch (e) { /* ignore */ }
 
+        // Test SSH connection first
+        await storage.addActivityLog({
+          level: "INFO",
+          message: `Testing SSH connection to root@${edgeCardIp}...`,
+          source: "dashboard",
+        });
+
         const sshProcess = spawn("ssh", [
+          "-v", // Verbose output for debugging
           "-o", "ConnectTimeout=10",
           "-o", "HostKeyAlgorithms=+ssh-rsa",
+          "-o", "PubkeyAuthentication=yes",
+          "-o", "PasswordAuthentication=no",
           "-o", "StrictHostKeyChecking=no",
           "-o", "UserKnownHostsFile=/dev/null",
           "-i", "/home/rak/.ssh/id_rsa",
@@ -156,11 +183,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
 
         sshProcess.stderr?.on("data", async (data) => {
+          const errorMsg = data.toString().trim();
           await storage.addActivityLog({
             level: "ERROR",
-            message: `SSH tunnel stderr: ${data.toString().trim()}`,
+            message: `SSH tunnel stderr: ${errorMsg}`,
             source: "dashboard",
           });
+        });
+
+        sshProcess.stdout?.on("data", async (data) => {
+          const outputMsg = data.toString().trim();
+          await storage.addActivityLog({
+            level: "INFO",
+            message: `SSH tunnel stdout: ${outputMsg}`,
+            source: "dashboard",
+          });
+        });
+
+        // Add timeout handler
+        const timeoutId = setTimeout(async () => {
+          await storage.addActivityLog({
+            level: "ERROR",
+            message: "SSH tunnel timeout - killing process",
+            source: "dashboard",
+          });
+          sshProcess.kill('SIGTERM');
+        }, 15000); // 15 second timeout
+
+        sshProcess.on("close", () => {
+          clearTimeout(timeoutId);
         });
 
         // Unref so parent process doesn't wait
