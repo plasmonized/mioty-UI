@@ -200,7 +200,37 @@ function startPeriodicUpdates() {
       
       if (connection?.status === "connected" && connection.edgeCardIp) {
         // Update all data periodically
-        await getEdgeCardConfig(connection.edgeCardIp);
+        const realData = await getEdgeCardConfig(connection.edgeCardIp);
+        
+        // Update stored config with real XML data
+        const realConfig = {
+          baseStationName: realData.config.baseStationName,
+          baseStationVendor: realData.config.baseStationVendor,
+          baseStationModel: realData.config.baseStationModel,
+          uniqueBaseStationId: realData.config.uniqueBaseStationId,
+          serviceCenterAddr: realData.config.serviceCenterAddr,
+          serviceCenterPort: parseInt(realData.config.serviceCenterPort) || 8080,
+          profile: realData.config.profile,
+          tlsAuthRequired: realData.config.tlsAuthRequired,
+          tlsAllowInsecure: realData.config.tlsAllowInsecure,
+          updatedAt: new Date(),
+        };
+        
+        await storage.updateBaseStationConfig(realConfig);
+        
+        // Update system info
+        await storage.updateSystemInfo({
+          edgeCardModel: realData.edgeCardModel,
+          lastSync: new Date(),
+        });
+        
+        // Update base station status - only update system info, not manual status
+        await storage.updateBaseStationStatus({
+          autoStart: realData.autoStart,
+          uptime: realData.uptime,
+          memoryUsage: realData.memoryUsage,
+          // Do NOT override manual status changes with EdgeCard status
+        });
         
         await storage.addActivityLog({
           level: "INFO",
@@ -497,6 +527,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/base-station/start", async (req, res) => {
     try {
+      const connection = await storage.getConnection();
+      
+      if (connection?.status === "connected" && connection.edgeCardIp) {
+        try {
+          // Send real start command to EdgeCard
+          await executeSSHCommand(connection.edgeCardIp, "systemctl start mioty || /etc/init.d/mioty start");
+          
+          await storage.addActivityLog({
+            level: "INFO",
+            message: "Start command sent to EdgeCard",
+            source: "base-station",
+          });
+        } catch (sshError) {
+          await storage.addActivityLog({
+            level: "ERROR",
+            message: `Failed to send start command: ${sshError}`,
+            source: "base-station",
+          });
+        }
+      }
+      
       await storage.updateBaseStationStatus({
         status: "running",
         lastStarted: new Date(),
@@ -514,6 +565,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/base-station/stop", async (req, res) => {
     try {
+      const connection = await storage.getConnection();
+      
+      if (connection?.status === "connected" && connection.edgeCardIp) {
+        try {
+          // Send real stop command to EdgeCard
+          await executeSSHCommand(connection.edgeCardIp, "systemctl stop mioty || /etc/init.d/mioty stop");
+          
+          await storage.addActivityLog({
+            level: "INFO",
+            message: "Stop command sent to EdgeCard",
+            source: "base-station",
+          });
+        } catch (sshError) {
+          await storage.addActivityLog({
+            level: "ERROR",
+            message: `Failed to send stop command: ${sshError}`,
+            source: "base-station",
+          });
+        }
+      }
+      
       await storage.updateBaseStationStatus({
         status: "stopped",
         lastStopped: new Date(),
@@ -616,20 +688,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (connection?.status === "connected" && connection.edgeCardIp) {
         try {
-          // Get real configuration from EdgeCard
+          // Get real configuration from EdgeCard including XML data
           const realData = await getEdgeCardConfig(connection.edgeCardIp);
           
-          // Update config with real data
+          // Use REAL XML parameters from EdgeCard
           const realConfig = {
-            baseStationName: realData.hostname,
-            baseStationVendor: "Miromico",
-            baseStationModel: realData.edgeCardModel,
-            // Keep other fields from stored config or use defaults
-            uniqueBaseStationId: "9C-65-F9-FF-FE-55-44-33", // Would need specific command to get this
-            serviceCenterAddr: "eu3.loriot.io", // From config file if available
-            serviceCenterPort: 727,
-            profile: "EU1",
-            tlsAuthRequired: true,
+            baseStationName: realData.config.baseStationName,
+            baseStationVendor: realData.config.baseStationVendor,
+            baseStationModel: realData.config.baseStationModel,
+            uniqueBaseStationId: realData.config.uniqueBaseStationId,
+            serviceCenterAddr: realData.config.serviceCenterAddr,
+            serviceCenterPort: parseInt(realData.config.serviceCenterPort) || 8080,
+            profile: realData.config.profile,
+            tlsAuthRequired: realData.config.tlsAuthRequired,
+            tlsAllowInsecure: realData.config.tlsAllowInsecure,
             updatedAt: new Date(),
           };
           
