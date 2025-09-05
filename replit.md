@@ -2,6 +2,20 @@
 
 This is a mioty wireless communication system dashboard built as a full-stack web application. The project provides a management interface for EdgeCard communication devices, allowing users to configure base station settings, manage TLS certificates, monitor connection status, and view system activity logs. The application is designed to simplify the setup and management of mioty-based IoT communication infrastructure.
 
+# Recent Changes
+
+## Dashboard SSH Tunnel Implementation (January 2025)
+- **Dashboard Button Fixed**: SSH tunnel creation now works with proper original mioty-cli compatibility
+- **SSH Configuration**: Implemented exact SSH options from original mioty-cli:
+  - `ConnectTimeout=10`
+  - `HostKeyAlgorithms=+ssh-rsa` 
+  - `IdentityFile=/dev/null` (prevents SSH key errors)
+  - `PasswordAuthentication=yes` (uses password instead of keys)
+  - `PubkeyAuthentication=no` (disables public key auth)
+- **SSH Tunnel**: Creates tunnel on `0.0.0.0:8888` forwarding to EdgeCard `localhost:8080`
+- **Error Handling**: Comprehensive SSH process monitoring with detailed error logging
+- **Port Management**: Automatic cleanup of existing SSH tunnels before creating new ones
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
