@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertBaseStationConfigSchema, insertCertificateSchema, insertActivityLogSchema } from "@shared/schema";
 import multer from "multer";
 import { spawn } from "child_process";
+import { existsSync } from "fs";
 
 interface MulterRequest extends Request {
   file?: Express.Multer.File;
@@ -113,10 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create actual SSH tunnel to EdgeCard
       try {
         // Check if SSH key exists
-        const { spawn: spawnSync } = require("child_process");
-        const fs = require("fs");
-        
-        if (!fs.existsSync("/home/rak/.ssh/id_rsa")) {
+        if (!existsSync("/home/rak/.ssh/id_rsa")) {
           await storage.addActivityLog({
             level: "ERROR",
             message: "SSH private key not found at /home/rak/.ssh/id_rsa",
