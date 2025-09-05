@@ -42,6 +42,7 @@ export default function ConfigurationForm({
       serviceCenterPort: 8883,
       profile: "EU1",
       tlsAuthRequired: true,
+      tlsAllowInsecure: false,
     },
   });
 
@@ -57,6 +58,7 @@ export default function ConfigurationForm({
         serviceCenterPort: config.serviceCenterPort || 8883,
         profile: config.profile || "EU1",
         tlsAuthRequired: config.tlsAuthRequired !== undefined ? config.tlsAuthRequired : true,
+        tlsAllowInsecure: config.tlsAllowInsecure !== undefined ? config.tlsAllowInsecure : false,
       });
     }
   }, [config, form]);
@@ -231,17 +233,28 @@ export default function ConfigurationForm({
               
               <div>
                 <Label className="flex items-center gap-2">
-                  TLS Authentication
-                  <InfoTooltip content="Enable TLS authentication for secure communication" />
+                  TLS Configuration
+                  <InfoTooltip content="Configure TLS security settings for communication" />
                 </Label>
-                <div className="flex items-center space-x-2 mt-2">
-                  <Checkbox
-                    id="tlsAuth"
-                    checked={form.watch("tlsAuthRequired") || false}
-                    onCheckedChange={(checked) => form.setValue("tlsAuthRequired", !!checked)}
-                    data-testid="checkbox-tls-auth"
-                  />
-                  <Label htmlFor="tlsAuth" className="text-sm">Required</Label>
+                <div className="space-y-3 mt-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="tlsAuth"
+                      checked={form.watch("tlsAuthRequired") || false}
+                      onCheckedChange={(checked) => form.setValue("tlsAuthRequired", !!checked)}
+                      data-testid="checkbox-tls-auth"
+                    />
+                    <Label htmlFor="tlsAuth" className="text-sm">Authentication Required</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="tlsAllowInsecure"
+                      checked={form.watch("tlsAllowInsecure") || false}
+                      onCheckedChange={(checked) => form.setValue("tlsAllowInsecure", !!checked)}
+                      data-testid="checkbox-tls-allow-insecure"
+                    />
+                    <Label htmlFor="tlsAllowInsecure" className="text-sm">Allow Insecure Connections</Label>
+                  </div>
                 </div>
               </div>
             </div>

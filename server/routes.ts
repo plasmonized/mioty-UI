@@ -124,7 +124,8 @@ function extractMiotyParams(xmlData: any) {
       serviceCenterAddr: config.serviceCenterAddr?.[0] || "localhost",
       serviceCenterPort: config.serviceCenterPort?.[0] || "8080",
       profile: config.profile?.[0] || "EU1",
-      tlsAuthRequired: config.tlsAuthRequired?.[0] === "true"
+      tlsAuthRequired: config.tlsAuthRequired?.[0] === "true",
+      tlsAllowInsecure: config.tlsAllowInsecure?.[0] === "true"
     };
   } catch (error) {
     // Return defaults if parsing fails
@@ -136,7 +137,8 @@ function extractMiotyParams(xmlData: any) {
       serviceCenterAddr: "localhost",
       serviceCenterPort: "8080",
       profile: "EU1",
-      tlsAuthRequired: false
+      tlsAuthRequired: false,
+      tlsAllowInsecure: false
     };
   }
 }

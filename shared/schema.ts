@@ -25,6 +25,7 @@ export const baseStationConfig = pgTable("base_station_config", {
   serviceCenterPort: integer("service_center_port").notNull(),
   profile: text("profile").notNull().default("EU1"),
   tlsAuthRequired: boolean("tls_auth_required").default(true),
+  tlsAllowInsecure: boolean("tls_allow_insecure").default(false),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
