@@ -162,9 +162,9 @@ async function getEdgeCardConfig(edgeCardIp: string) {
       miotyParams = extractMiotyParams({});
     }
 
-    // Get process status (BusyBox compatible)
-    const miotyStatus = await executeSSHCommand(edgeCardIp, "systemctl is-active mioty 2>/dev/null || (ps | grep mioty | grep -v grep >/dev/null && echo 'active' || echo 'inactive')");
-    const isAutoStart = await executeSSHCommand(edgeCardIp, "systemctl is-enabled mioty 2>/dev/null || echo 'unknown'");
+    // Get process status for mioty_bs (real service name)
+    const miotyStatus = await executeSSHCommand(edgeCardIp, "systemctl is-active mioty_bs 2>/dev/null || (ps | grep mioty | grep -v grep >/dev/null && echo 'active' || echo 'inactive')");
+    const isAutoStart = await executeSSHCommand(edgeCardIp, "systemctl is-enabled mioty_bs 2>/dev/null || echo 'unknown'");
     
     return {
       hostname: hostname || "Sentinum Edge mioty",
@@ -186,92 +186,205 @@ interface MulterRequest extends Request {
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Auto-discovery for correct mioty service commands
-async function discoverMiotyCommands(edgeCardIp: string) {
-  const commands = {
-    start: "",
-    stop: "",
-    status: "",
-    enable: "",
-    disable: ""
-  };
+// Complete mioty-cli automation system
+class MiotyCliCommands {
+  private CONNECTION_NAME = "mioty";
+  private INTERNAL_IF = "";
+  private EXTERNAL_IF = "";
+  private edgeCardIp = "";
   
-  try {
-    // Try different service patterns
-    const servicePatterns = [
-      "mioty",
-      "mioty-bsm", 
-      "miotyd",
-      "mioty_bs",
-      "mioty-service"
-    ];
-    
-    for (const service of servicePatterns) {
-      try {
-        // Test if service exists with systemctl
-        await executeSSHCommand(edgeCardIp, `systemctl status ${service} 2>/dev/null | grep -q "Unit ${service}.service" && echo "found"`);
-        commands.start = `systemctl start ${service}`;
-        commands.stop = `systemctl stop ${service}`;
-        commands.status = `systemctl is-active ${service}`;
-        commands.enable = `systemctl enable ${service}`;
-        commands.disable = `systemctl disable ${service}`;
-        break;
-      } catch (e) {
-        // Try init.d
-        try {
-          await executeSSHCommand(edgeCardIp, `test -f /etc/init.d/${service} && echo "found"`);
-          commands.start = `/etc/init.d/${service} start`;
-          commands.stop = `/etc/init.d/${service} stop`;
-          commands.status = `/etc/init.d/${service} status`;
-          commands.enable = `update-rc.d ${service} enable`;
-          commands.disable = `update-rc.d ${service} disable`;
-          break;
-        } catch (e2) {
-          // Try rc.d
-          try {
-            await executeSSHCommand(edgeCardIp, `test -f /etc/rc.d/${service} && echo "found"`);
-            commands.start = `/etc/rc.d/${service} start`;
-            commands.stop = `/etc/rc.d/${service} stop`;
-            commands.status = `/etc/rc.d/${service} status`;
-            break;
-          } catch (e3) {
-            continue;
-          }
-        }
-      }
-    }
-    
-    // Fallback to process-based control
-    if (!commands.start) {
-      commands.start = `nohup mioty_bs > /tmp/mioty.log 2>&1 & echo $! > /tmp/mioty.pid`;
-      commands.stop = `pkill -f mioty || kill $(cat /tmp/mioty.pid 2>/dev/null) 2>/dev/null || true`;
-      commands.status = `ps | grep mioty | grep -v grep >/dev/null && echo 'active' || echo 'inactive'`;
-    }
-    
-  } catch (error) {
-    // Absolute fallback
-    commands.start = `nohup mioty_bs > /tmp/mioty.log 2>&1 & echo $! > /tmp/mioty.pid`;
-    commands.stop = `pkill -f mioty || kill $(cat /tmp/mioty.pid 2>/dev/null) 2>/dev/null || true`;
-    commands.status = `ps | grep mioty | grep -v grep >/dev/null && echo 'active' || echo 'inactive'`;
+  constructor(edgeCardIp: string) {
+    this.edgeCardIp = edgeCardIp;
   }
   
-  return commands;
+  // 1. setup_connection() - NetworkManager setup
+  async setupConnection(): Promise<void> {
+    try {
+      // Get interface (Miromico card detection)
+      this.INTERNAL_IF = await this.getInterface();
+      if (!this.INTERNAL_IF) {
+        throw new Error("Could not find interface to card");
+      }
+      
+      // Get external interface 
+      this.EXTERNAL_IF = await this.getExternalInterface();
+      
+      // Check if mioty connection exists
+      const connectionExists = await this.checkConnectionExists();
+      
+      if (!connectionExists) {
+        await this.executeLocalCommand(`sudo nmcli connection add con-name ${this.CONNECTION_NAME} type ethernet`);
+      }
+      
+      // Configure connection
+      await this.executeLocalCommand(`sudo nmcli connection modify ${this.CONNECTION_NAME} ifname "${this.INTERNAL_IF}"`);
+      await this.executeLocalCommand(`sudo nmcli connection modify ${this.CONNECTION_NAME} connection.autoconnect yes`);
+      await this.executeLocalCommand(`sudo nmcli connection modify ${this.CONNECTION_NAME} ipv4.addresses 172.30.1.1/24`);
+      await this.executeLocalCommand(`sudo nmcli connection modify ${this.CONNECTION_NAME} ipv4.gateway 172.30.1.1`);
+      await this.executeLocalCommand(`sudo nmcli connection modify ${this.CONNECTION_NAME} ipv4.dns 1.1.1.1`);
+      await this.executeLocalCommand(`sudo nmcli connection modify ${this.CONNECTION_NAME} ipv4.method manual`);
+      await this.executeLocalCommand(`sudo nmcli connection modify ${this.CONNECTION_NAME} ipv6.method ignore`);
+      
+      // Setup firewall script
+      await this.setupFirewallScript();
+      
+      await this.executeLocalCommand(`sudo nmcli connection reload`);
+      
+    } catch (error) {
+      throw new Error(`Setup connection failed: ${error}`);
+    }
+  }
+  
+  // 2. start_connection() 
+  async startConnection(): Promise<void> {
+    await this.checkConnectionExists();
+    await this.executeLocalCommand(`sudo nmcli connection up ${this.CONNECTION_NAME}`);
+  }
+  
+  // 3. enable_connection()
+  async enableConnection(): Promise<void> {
+    await this.checkConnectionExists();
+    await this.executeLocalCommand(`sudo nmcli connection modify ${this.CONNECTION_NAME} connection.autoconnect yes`);
+  }
+  
+  // 4. start_pf() - Start mioty base station (REAL SERVICE NAME: mioty_bs)
+  async startPf(): Promise<void> {
+    await this.checkConnectionUp();
+    await executeSSHCommand(this.edgeCardIp, "systemctl start mioty_bs");
+  }
+  
+  // 5. enable_pf() - Enable mioty auto-start
+  async enablePf(): Promise<void> {
+    await this.checkConnectionUp();
+    await executeSSHCommand(this.edgeCardIp, "systemctl enable mioty_bs");
+  }
+  
+  // Helper functions
+  private async getInterface(): Promise<string> {
+    try {
+      // Look for Miromico/USB ethernet interfaces
+      const result = await this.executeLocalCommand("ip link show | grep -E '(enx|usb|eth)' | head -1 | cut -d: -f2 | tr -d ' '");
+      return result.trim();
+    } catch (error) {
+      return "";
+    }
+  }
+  
+  private async getExternalInterface(): Promise<string> {
+    try {
+      const result = await this.executeLocalCommand("ip -o -4 route show to default | awk '{print $5}'");
+      return result.trim();
+    } catch (error) {
+      return "eth0"; // fallback
+    }
+  }
+  
+  private async checkConnectionExists(): Promise<boolean> {
+    try {
+      const result = await this.executeLocalCommand(`nmcli connection | grep -c ${this.CONNECTION_NAME}`);
+      return parseInt(result.trim()) > 0;
+    } catch (error) {
+      return false;
+    }
+  }
+  
+  private async checkConnectionUp(): Promise<void> {
+    const isUp = await this.checkConnectionExists();
+    if (!isUp) {
+      throw new Error("Connection not up");
+    }
+  }
+  
+  private async setupFirewallScript(): Promise<void> {
+    const script = `#!/usr/bin/env bash
+
+INTERFACE=$1
+EVENT=$2
+
+if [[ "$INTERFACE" = "${this.INTERNAL_IF}" ]]
+then
+    ip route del default via 172.30.1.1 2>/dev/null || true
+    echo 1 > /proc/sys/net/ipv4/ip_forward
+
+    iptables-save | grep -q "${this.CONNECTION_NAME}"
+    if [[ $? -eq 1 ]]
+    then
+        iptables -t filter -I FORWARD -i ${this.INTERNAL_IF} -j ACCEPT -m comment --comment "${this.CONNECTION_NAME}" 
+        iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination 1.1.1.1:53 -m comment --comment "${this.CONNECTION_NAME}"  
+        iptables -t nat -A POSTROUTING -o ${this.EXTERNAL_IF} -j MASQUERADE -m comment --comment "${this.CONNECTION_NAME}" 
+    fi
+fi
+
+exit 0`;
+
+    await this.executeLocalCommand(`echo '${script}' | sudo tee /tmp/99-${this.CONNECTION_NAME} > /dev/null`);
+    await this.executeLocalCommand(`sudo chown root:root /tmp/99-${this.CONNECTION_NAME}`);
+    await this.executeLocalCommand(`sudo chmod 755 /tmp/99-${this.CONNECTION_NAME}`);
+    await this.executeLocalCommand(`sudo mv /tmp/99-${this.CONNECTION_NAME} /etc/NetworkManager/dispatcher.d/`);
+  }
+  
+  private async executeLocalCommand(command: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const { spawn } = require('child_process');
+      const process = spawn('bash', ['-c', command]);
+      
+      let output = "";
+      let error = "";
+      
+      process.stdout?.on('data', (data) => {
+        output += data.toString();
+      });
+      
+      process.stderr?.on('data', (data) => {
+        error += data.toString();
+      });
+      
+      process.on('close', (code) => {
+        if (code === 0) {
+          resolve(output.trim());
+        } else {
+          reject(new Error(`Command failed: ${error.trim()}`));
+        }
+      });
+    });
+  }
+  
+  // Check mioty_bs service status
+  async getMiotyStatus(): Promise<string> {
+    try {
+      return await executeSSHCommand(this.edgeCardIp, "systemctl is-active mioty_bs 2>/dev/null || echo 'inactive'");
+    } catch (error) {
+      return "inactive";
+    }
+  }
+  
+  // Get all commands for manual control
+  getCommands() {
+    return {
+      start: "systemctl start mioty_bs",
+      stop: "systemctl stop mioty_bs", 
+      status: "systemctl is-active mioty_bs",
+      enable: "systemctl enable mioty_bs",
+      disable: "systemctl disable mioty_bs"
+    };
+  }
 }
 
-// Watchdog system for automatic management
+// Complete mioty-cli Automation Watchdog
 class MiotyWatchdog {
   private edgeCardIp: string | null = null;
-  private commands: any = null;
+  private miotyCommands: MiotyCliCommands | null = null;
   private watchdogInterval: NodeJS.Timeout | null = null;
   private connectionInterval: NodeJS.Timeout | null = null;
+  private setupCompleted: boolean = false;
   
   async start() {
-    this.connectionInterval = setInterval(() => this.autoConnect(), 10000); // Check connection every 10s
-    this.watchdogInterval = setInterval(() => this.watchdog(), 30000); // Watchdog every 30s
+    this.connectionInterval = setInterval(() => this.autoSetupAndConnect(), 10000); // Setup every 10s
+    this.watchdogInterval = setInterval(() => this.watchdog(), 30000); // Monitor every 30s
     
     await storage.addActivityLog({
       level: "INFO",
-      message: "Automated Watchdog System started",
+      message: "Complete mioty-cli Automation System started",
       source: "watchdog",
     });
   }
@@ -281,77 +394,126 @@ class MiotyWatchdog {
     if (this.watchdogInterval) clearInterval(this.watchdogInterval);
   }
   
-  async autoConnect() {
+  async autoSetupAndConnect() {
     try {
       const connection = await storage.getConnection();
       
       if (!connection || connection.status !== "connected") {
-        // Try to auto-discover EdgeCard IP
-        const possibleIPs = [
-          "172.30.1.2",
-          "192.168.1.100", 
-          "192.168.4.1",
-          "10.0.0.1"
-        ];
-        
-        for (const ip of possibleIPs) {
-          try {
-            await executeSSHCommand(ip, "echo 'test' > /dev/null");
-            
-            // Found working IP - establish connection
-            await storage.updateConnectionStatus("connected");
-            
-            this.edgeCardIp = ip;
-            this.commands = await discoverMiotyCommands(ip);
-            
-            await storage.addActivityLog({
-              level: "CONN",
-              message: `Auto-connected to EdgeCard at ${ip}`,
-              source: "watchdog",
-            });
-            
-            // Auto-enable mioty service
-            await this.enableAutoStart();
-            break;
-          } catch (e) {
-            continue;
-          }
-        }
+        await this.discoverAndSetup();
       } else {
         this.edgeCardIp = connection.edgeCardIp;
-        if (!this.commands && this.edgeCardIp) {
-          this.commands = await discoverMiotyCommands(this.edgeCardIp);
+        if (!this.miotyCommands && this.edgeCardIp) {
+          this.miotyCommands = new MiotyCliCommands(this.edgeCardIp);
         }
       }
     } catch (error) {
-      // Silent - will retry
+      // Silent retry
     }
   }
   
-  async enableAutoStart() {
-    if (!this.edgeCardIp || !this.commands) return;
+  async discoverAndSetup() {
+    const possibleIPs = [
+      "172.30.1.2",
+      "192.168.1.100", 
+      "192.168.4.1",
+      "10.0.0.1"
+    ];
     
-    try {
-      if (this.commands.enable) {
-        await executeSSHCommand(this.edgeCardIp, this.commands.enable);
+    for (const ip of possibleIPs) {
+      try {
+        await executeSSHCommand(ip, "echo 'test' > /dev/null");
+        
+        this.edgeCardIp = ip;
+        this.miotyCommands = new MiotyCliCommands(ip);
         
         await storage.addActivityLog({
-          level: "INFO",
-          message: "Auto-start enabled on EdgeCard",
+          level: "CONN",
+          message: `EdgeCard discovered at ${ip}`,
           source: "watchdog",
         });
+        
+        // Complete mioty-cli setup sequence
+        if (!this.setupCompleted) {
+          await this.performCompleteSetup();
+        }
+        
+        await storage.updateConnectionStatus("connected");
+        break;
+      } catch (e) {
+        continue;
       }
+    }
+  }
+  
+  async performCompleteSetup() {
+    if (!this.miotyCommands) return;
+    
+    try {
+      await storage.addActivityLog({
+        level: "INFO",
+        message: "Starting complete mioty-cli automation setup...",
+        source: "watchdog",
+      });
+      
+      // 1. Setup network connection
+      await this.miotyCommands.setupConnection();
+      await storage.addActivityLog({
+        level: "INFO",
+        message: "✓ Network connection configured",
+        source: "watchdog",
+      });
+      
+      // 2. Start connection
+      await this.miotyCommands.startConnection();
+      await storage.addActivityLog({
+        level: "INFO",
+        message: "✓ Network connection started",
+        source: "watchdog",
+      });
+      
+      // 3. Enable auto-connect
+      await this.miotyCommands.enableConnection();
+      await storage.addActivityLog({
+        level: "INFO",
+        message: "✓ Auto-connect enabled",
+        source: "watchdog",
+      });
+      
+      // 4. Enable mioty_bs service
+      await this.miotyCommands.enablePf();
+      await storage.addActivityLog({
+        level: "INFO",
+        message: "✓ mioty_bs auto-start enabled",
+        source: "watchdog",
+      });
+      
+      // 5. Start mioty_bs service
+      await this.miotyCommands.startPf();
+      await storage.addActivityLog({
+        level: "INFO",
+        message: "✓ mioty_bs service started",
+        source: "watchdog",
+      });
+      
+      this.setupCompleted = true;
+      
+      await storage.addActivityLog({
+        level: "INFO",
+        message: "🚀 Complete mioty-cli automation setup finished - all services running!",
+        source: "watchdog",
+      });
+      
     } catch (error) {
       await storage.addActivityLog({
         level: "ERROR",
-        message: `Failed to enable auto-start: ${error}`,
+        message: `Setup failed: ${error}`,
         source: "watchdog",
       });
     }
   }
   
   async watchdog() {
-    if (!this.edgeCardIp || !this.commands) return;
+    if (!this.edgeCardIp || !this.miotyCommands) return;
     
     try {
       // Update all data
@@ -377,17 +539,19 @@ class MiotyWatchdog {
         lastSync: new Date(),
       });
       
-      // Auto-start mioty if it's stopped
-      if (realData.miotyStatus === "inactive") {
-        await executeSSHCommand(this.edgeCardIp, this.commands.start);
+      // Check mioty_bs service status
+      const miotyStatus = await this.miotyCommands.getMiotyStatus();
+      
+      // Auto-restart if service is down
+      if (miotyStatus === "inactive") {
+        await this.miotyCommands.startPf();
         
         await storage.addActivityLog({
           level: "INFO",
-          message: "Auto-started mioty service",
+          message: "Auto-restarted mioty_bs service",
           source: "watchdog",
         });
         
-        // Update status to reflect start command
         await storage.updateBaseStationStatus({
           status: "running",
           autoStart: realData.autoStart,
@@ -396,8 +560,8 @@ class MiotyWatchdog {
           lastStarted: new Date(),
         });
       } else {
-        // Just update status info
         await storage.updateBaseStationStatus({
+          status: miotyStatus === "active" ? "running" : "stopped",
           autoStart: realData.autoStart,
           uptime: realData.uptime,
           memoryUsage: realData.memoryUsage,
@@ -407,7 +571,7 @@ class MiotyWatchdog {
     } catch (error) {
       await storage.addActivityLog({
         level: "ERROR",
-        message: `Watchdog error: ${error}`,
+        message: `Watchdog monitoring error: ${error}`,
         source: "watchdog",
       });
     }
@@ -701,9 +865,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (connection?.status === "connected" && connection.edgeCardIp) {
         try {
-          // Use discovered commands
-          const commands = await discoverMiotyCommands(connection.edgeCardIp);
-          await executeSSHCommand(connection.edgeCardIp, commands.start);
+          // Use real mioty_bs service
+          await executeSSHCommand(connection.edgeCardIp, "systemctl start mioty_bs");
           
           await storage.addActivityLog({
             level: "INFO",
@@ -740,9 +903,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (connection?.status === "connected" && connection.edgeCardIp) {
         try {
-          // Use discovered commands
-          const commands = await discoverMiotyCommands(connection.edgeCardIp);
-          await executeSSHCommand(connection.edgeCardIp, commands.stop);
+          // Use real mioty_bs service
+          await executeSSHCommand(connection.edgeCardIp, "systemctl stop mioty_bs");
           
           await storage.addActivityLog({
             level: "INFO",
