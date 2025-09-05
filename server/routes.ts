@@ -186,6 +186,41 @@ interface MulterRequest extends Request {
 
 const upload = multer({ storage: multer.memoryStorage() });
 
+// Enhanced logging utility
+class ExtendedLogger {
+  static async log(level: string, message: string, source: string, details?: any) {
+    // Basic log entry
+    await storage.addActivityLog({
+      level: level as any,
+      message: message,
+      source: source,
+    });
+    
+    // Extended details if provided
+    if (details) {
+      await storage.addActivityLog({
+        level: "DEBUG",
+        message: `${source} Details: ${JSON.stringify(details, null, 2)}`,
+        source: source,
+      });
+    }
+  }
+  
+  static async logCommand(command: string, result: string, error?: string) {
+    await this.log("DEBUG", `Command: ${command}`, "ssh", {
+      result: result || "No output",
+      error: error || null,
+      timestamp: new Date().toISOString()
+    });
+  }
+  
+  static async logStep(step: string, status: "START" | "SUCCESS" | "ERROR", details?: any) {
+    const level = status === "ERROR" ? "ERROR" : "INFO";
+    const message = `${status}: ${step}`;
+    await this.log(level, message, "automation", details);
+  }
+}
+
 // Complete mioty-cli automation system
 class MiotyCliCommands {
   private CONNECTION_NAME = "mioty";
@@ -199,46 +234,81 @@ class MiotyCliCommands {
   
   // 1. setup_connection() - NetworkManager setup
   async setupConnection(): Promise<void> {
+    await ExtendedLogger.logStep("Network Connection Setup", "START");
+    
     try {
       // Get interface (Miromico card detection)
+      await ExtendedLogger.logStep("Interface Detection", "START");
       this.INTERNAL_IF = await this.getInterface();
       if (!this.INTERNAL_IF) {
+        await ExtendedLogger.logStep("Interface Detection", "ERROR", { error: "No Miromico interface found" });
         throw new Error("Could not find interface to card");
       }
+      await ExtendedLogger.logStep("Interface Detection", "SUCCESS", { interface: this.INTERNAL_IF });
       
       // Get external interface 
       this.EXTERNAL_IF = await this.getExternalInterface();
+      await ExtendedLogger.log("INFO", `External interface: ${this.EXTERNAL_IF}`, "networking");
       
       // Check if mioty connection exists
       const connectionExists = await this.checkConnectionExists();
+      await ExtendedLogger.log("INFO", `Connection exists: ${connectionExists}`, "networking");
       
       if (!connectionExists) {
-        await this.executeLocalCommand(`sudo nmcli connection add con-name ${this.CONNECTION_NAME} type ethernet`);
+        await ExtendedLogger.logStep("Creating NetworkManager Connection", "START");
+        const result = await this.executeLocalCommand(`sudo nmcli connection add con-name ${this.CONNECTION_NAME} type ethernet`);
+        await ExtendedLogger.logCommand(`nmcli connection add con-name ${this.CONNECTION_NAME} type ethernet`, result);
+        await ExtendedLogger.logStep("Creating NetworkManager Connection", "SUCCESS");
       }
       
-      // Configure connection
-      await this.executeLocalCommand(`sudo nmcli connection modify ${this.CONNECTION_NAME} ifname "${this.INTERNAL_IF}"`);
-      await this.executeLocalCommand(`sudo nmcli connection modify ${this.CONNECTION_NAME} connection.autoconnect yes`);
-      await this.executeLocalCommand(`sudo nmcli connection modify ${this.CONNECTION_NAME} ipv4.addresses 172.30.1.1/24`);
-      await this.executeLocalCommand(`sudo nmcli connection modify ${this.CONNECTION_NAME} ipv4.gateway 172.30.1.1`);
-      await this.executeLocalCommand(`sudo nmcli connection modify ${this.CONNECTION_NAME} ipv4.dns 1.1.1.1`);
-      await this.executeLocalCommand(`sudo nmcli connection modify ${this.CONNECTION_NAME} ipv4.method manual`);
-      await this.executeLocalCommand(`sudo nmcli connection modify ${this.CONNECTION_NAME} ipv6.method ignore`);
+      // Configure connection with detailed logging
+      await ExtendedLogger.logStep("Configuring Network Settings", "START");
+      
+      const commands = [
+        `sudo nmcli connection modify ${this.CONNECTION_NAME} ifname "${this.INTERNAL_IF}"`,
+        `sudo nmcli connection modify ${this.CONNECTION_NAME} connection.autoconnect yes`,
+        `sudo nmcli connection modify ${this.CONNECTION_NAME} ipv4.addresses 172.30.1.1/24`,
+        `sudo nmcli connection modify ${this.CONNECTION_NAME} ipv4.gateway 172.30.1.1`,
+        `sudo nmcli connection modify ${this.CONNECTION_NAME} ipv4.dns 1.1.1.1`,
+        `sudo nmcli connection modify ${this.CONNECTION_NAME} ipv4.method manual`,
+        `sudo nmcli connection modify ${this.CONNECTION_NAME} ipv6.method ignore`
+      ];
+      
+      for (const cmd of commands) {
+        const result = await this.executeLocalCommand(cmd);
+        await ExtendedLogger.logCommand(cmd, result);
+      }
+      
+      await ExtendedLogger.logStep("Configuring Network Settings", "SUCCESS");
       
       // Setup firewall script
+      await ExtendedLogger.logStep("Setting up Firewall Rules", "START");
       await this.setupFirewallScript();
+      await ExtendedLogger.logStep("Setting up Firewall Rules", "SUCCESS");
       
-      await this.executeLocalCommand(`sudo nmcli connection reload`);
+      const reloadResult = await this.executeLocalCommand(`sudo nmcli connection reload`);
+      await ExtendedLogger.logCommand("nmcli connection reload", reloadResult);
+      
+      await ExtendedLogger.logStep("Network Connection Setup", "SUCCESS");
       
     } catch (error) {
+      await ExtendedLogger.logStep("Network Connection Setup", "ERROR", { error: error.toString() });
       throw new Error(`Setup connection failed: ${error}`);
     }
   }
   
   // 2. start_connection() 
   async startConnection(): Promise<void> {
-    await this.checkConnectionExists();
-    await this.executeLocalCommand(`sudo nmcli connection up ${this.CONNECTION_NAME}`);
+    await ExtendedLogger.logStep("Starting Network Connection", "START");
+    try {
+      await this.checkConnectionExists();
+      const result = await this.executeLocalCommand(`sudo nmcli connection up ${this.CONNECTION_NAME}`);
+      await ExtendedLogger.logCommand(`nmcli connection up ${this.CONNECTION_NAME}`, result);
+      await ExtendedLogger.logStep("Starting Network Connection", "SUCCESS");
+    } catch (error) {
+      await ExtendedLogger.logStep("Starting Network Connection", "ERROR", { error: error.toString() });
+      throw error;
+    }
   }
   
   // 3. enable_connection()
@@ -249,14 +319,30 @@ class MiotyCliCommands {
   
   // 4. start_pf() - Start mioty base station (REAL SERVICE NAME: mioty_bs)
   async startPf(): Promise<void> {
-    await this.checkConnectionUp();
-    await executeSSHCommand(this.edgeCardIp, "systemctl start mioty_bs");
+    await ExtendedLogger.logStep("Starting mioty_bs Service", "START");
+    try {
+      await this.checkConnectionUp();
+      const result = await executeSSHCommand(this.edgeCardIp, "systemctl start mioty_bs");
+      await ExtendedLogger.logCommand("systemctl start mioty_bs", result);
+      await ExtendedLogger.logStep("Starting mioty_bs Service", "SUCCESS");
+    } catch (error) {
+      await ExtendedLogger.logStep("Starting mioty_bs Service", "ERROR", { error: error.toString() });
+      throw error;
+    }
   }
   
   // 5. enable_pf() - Enable mioty auto-start
   async enablePf(): Promise<void> {
-    await this.checkConnectionUp();
-    await executeSSHCommand(this.edgeCardIp, "systemctl enable mioty_bs");
+    await ExtendedLogger.logStep("Enabling mioty_bs AutoStart", "START");
+    try {
+      await this.checkConnectionUp();
+      const result = await executeSSHCommand(this.edgeCardIp, "systemctl enable mioty_bs");
+      await ExtendedLogger.logCommand("systemctl enable mioty_bs", result);
+      await ExtendedLogger.logStep("Enabling mioty_bs AutoStart", "SUCCESS");
+    } catch (error) {
+      await ExtendedLogger.logStep("Enabling mioty_bs AutoStart", "ERROR", { error: error.toString() });
+      throw error;
+    }
   }
   
   // Helper functions
@@ -449,66 +535,41 @@ class MiotyWatchdog {
     if (!this.miotyCommands) return;
     
     try {
-      await storage.addActivityLog({
-        level: "INFO",
-        message: "Starting complete mioty-cli automation setup...",
-        source: "watchdog",
+      await ExtendedLogger.logStep("Complete mioty-cli Automation Setup", "START", {
+        edgeCardIp: this.edgeCardIp,
+        timestamp: new Date().toISOString()
       });
       
       // 1. Setup network connection
       await this.miotyCommands.setupConnection();
-      await storage.addActivityLog({
-        level: "INFO",
-        message: "✓ Network connection configured",
-        source: "watchdog",
-      });
       
       // 2. Start connection
       await this.miotyCommands.startConnection();
-      await storage.addActivityLog({
-        level: "INFO",
-        message: "✓ Network connection started",
-        source: "watchdog",
-      });
       
       // 3. Enable auto-connect
       await this.miotyCommands.enableConnection();
-      await storage.addActivityLog({
-        level: "INFO",
-        message: "✓ Auto-connect enabled",
-        source: "watchdog",
-      });
       
       // 4. Enable mioty_bs service
       await this.miotyCommands.enablePf();
-      await storage.addActivityLog({
-        level: "INFO",
-        message: "✓ mioty_bs auto-start enabled",
-        source: "watchdog",
-      });
       
       // 5. Start mioty_bs service
       await this.miotyCommands.startPf();
-      await storage.addActivityLog({
-        level: "INFO",
-        message: "✓ mioty_bs service started",
-        source: "watchdog",
-      });
       
       this.setupCompleted = true;
       
-      await storage.addActivityLog({
-        level: "INFO",
-        message: "🚀 Complete mioty-cli automation setup finished - all services running!",
-        source: "watchdog",
+      await ExtendedLogger.logStep("Complete mioty-cli Automation Setup", "SUCCESS", {
+        setupCompleted: true,
+        allServicesConfigured: true,
+        timestamp: new Date().toISOString()
       });
       
     } catch (error) {
-      await storage.addActivityLog({
-        level: "ERROR",
-        message: `Setup failed: ${error}`,
-        source: "watchdog",
+      await ExtendedLogger.logStep("Complete mioty-cli Automation Setup", "ERROR", {
+        error: error.toString(),
+        setupCompleted: false,
+        timestamp: new Date().toISOString()
       });
+      throw error;
     }
   }
   
@@ -516,8 +577,22 @@ class MiotyWatchdog {
     if (!this.edgeCardIp || !this.miotyCommands) return;
     
     try {
+      await ExtendedLogger.log("DEBUG", "🔍 Watchdog cycle started", "watchdog", {
+        edgeCardIp: this.edgeCardIp,
+        setupCompleted: this.setupCompleted,
+        timestamp: new Date().toISOString()
+      });
+      
       // Update all data
       const realData = await getEdgeCardConfig(this.edgeCardIp);
+      
+      await ExtendedLogger.log("DEBUG", "📊 EdgeCard data retrieved", "watchdog", {
+        hostname: realData.hostname,
+        miotyStatus: realData.miotyStatus,
+        autoStart: realData.autoStart,
+        uptime: realData.uptime,
+        memoryUsage: realData.memoryUsage
+      });
       
       // Update stored config
       const realConfig = {
@@ -542,15 +617,15 @@ class MiotyWatchdog {
       // Check mioty_bs service status
       const miotyStatus = await this.miotyCommands.getMiotyStatus();
       
+      await ExtendedLogger.log("INFO", `🔋 Service Status Check: mioty_bs = ${miotyStatus}`, "watchdog");
+      
       // Auto-restart if service is down
       if (miotyStatus === "inactive") {
+        await ExtendedLogger.log("WARN", "⚠️  mioty_bs service is down - attempting auto-restart", "watchdog");
+        
         await this.miotyCommands.startPf();
         
-        await storage.addActivityLog({
-          level: "INFO",
-          message: "Auto-restarted mioty_bs service",
-          source: "watchdog",
-        });
+        await ExtendedLogger.log("INFO", "✅ Auto-restarted mioty_bs service", "watchdog");
         
         await storage.updateBaseStationStatus({
           status: "running",
@@ -566,13 +641,18 @@ class MiotyWatchdog {
           uptime: realData.uptime,
           memoryUsage: realData.memoryUsage,
         });
+        
+        await ExtendedLogger.log("DEBUG", `💚 Service running normally: ${miotyStatus}`, "watchdog");
       }
       
+      await ExtendedLogger.log("DEBUG", "✅ Watchdog cycle completed", "watchdog");
+      
     } catch (error) {
-      await storage.addActivityLog({
-        level: "ERROR",
-        message: `Watchdog monitoring error: ${error}`,
-        source: "watchdog",
+      await ExtendedLogger.logStep("Watchdog Monitoring", "ERROR", {
+        error: error.toString(),
+        edgeCardIp: this.edgeCardIp,
+        setupCompleted: this.setupCompleted,
+        timestamp: new Date().toISOString()
       });
     }
   }

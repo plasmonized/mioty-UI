@@ -76,6 +76,7 @@ export class MemStorage implements IStorage {
       serviceCenterPort: 727,
       profile: "EU1",
       tlsAuthRequired: true,
+      tlsAllowInsecure: false,
       updatedAt: new Date(),
     };
     this.baseStationConfigs.set("default", defaultConfig);
@@ -216,6 +217,7 @@ export class MemStorage implements IStorage {
       serviceCenterPort: config.serviceCenterPort,
       profile: config.profile || "EU1",
       tlsAuthRequired: config.tlsAuthRequired || null,
+      tlsAllowInsecure: config.tlsAllowInsecure || null,
       updatedAt: new Date(),
     };
     this.baseStationConfigs.set("default", updated);
