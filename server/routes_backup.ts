@@ -4,8 +4,7 @@ import { storage } from "./storage";
 import { insertBaseStationConfigSchema, insertCertificateSchema, insertActivityLogSchema } from "@shared/schema";
 import multer from "multer";
 import { spawn } from "child_process";
-import { existsSync, readFileSync, unlinkSync } from "fs";
-import { parseString } from "xml2js";
+import { existsSync, readFileSync, unlinkSync } from "fs";\nimport { parseString } from "xml2js";
 
 // SSH Helper Functions for EdgeCard Communication
 async function executeSSHCommand(edgeCardIp: string, command: string): Promise<string> {
@@ -53,94 +52,6 @@ async function executeSSHCommand(edgeCardIp: string, command: string): Promise<s
   });
 }
 
-// Get mioty XML configuration from EdgeCard (like mioty-cli getallparams)
-async function getMiotyXMLConfig(edgeCardIp: string): Promise<any> {
-  return new Promise((resolve, reject) => {
-    // Remove any existing temp file
-    try {
-      unlinkSync("/tmp/mioty_bs_config.xml");
-    } catch (e) { /* ignore */ }
-
-    // Use scp to get the XML config file from EdgeCard
-    const scpProcess = spawn("scp", [
-      "-q",
-      "-o", "ConnectTimeout=10",
-      "-o", "HostKeyAlgorithms=+ssh-rsa",
-      "-o", "StrictHostKeyChecking=no",
-      "-o", "UserKnownHostsFile=/dev/null",
-      "-i", "/home/rak/.ssh/id_rsa",
-      `root@${edgeCardIp}:mioty_bs/mioty_bs_config.xml`,
-      "/tmp/mioty_bs_config.xml"
-    ]);
-
-    scpProcess.on("close", (code) => {
-      if (code === 0) {
-        try {
-          // Read and parse the XML file
-          const xmlContent = readFileSync("/tmp/mioty_bs_config.xml", "utf8");
-          parseString(xmlContent, (err, result) => {
-            if (err) {
-              reject(new Error(`Failed to parse XML: ${err}`));
-              return;
-            }
-            
-            // Clean up temp file
-            try {
-              unlinkSync("/tmp/mioty_bs_config.xml");
-            } catch (e) { /* ignore */ }
-            
-            resolve(result);
-          });
-        } catch (error) {
-          reject(new Error(`Failed to read XML file: ${error}`));
-        }
-      } else {
-        reject(new Error(`SCP failed with code: ${code}`));
-      }
-    });
-
-    scpProcess.on("error", (err) => {
-      reject(new Error(`SCP process failed: ${err.message}`));
-    });
-
-    // Timeout after 2 minutes
-    setTimeout(() => {
-      scpProcess.kill();
-      reject(new Error("SCP timeout"));
-    }, 120000);
-  });
-}
-
-// Extract mioty parameters from XML (like mioty-cli)
-function extractMiotyParams(xmlData: any) {
-  try {
-    const config = xmlData?.BaseStationConfig || {};
-    
-    return {
-      uniqueBaseStationId: config.uniqueBaseStationId?.[0] || "unknown",
-      baseStationName: config.baseStationName?.[0] || "mioty-bsm",
-      baseStationVendor: config.baseStationVendor?.[0] || "Miromico",
-      baseStationModel: config.baseStationModel?.[0] || "EDGE-GW-MY-868",
-      serviceCenterAddr: config.serviceCenterAddr?.[0] || "localhost",
-      serviceCenterPort: config.serviceCenterPort?.[0] || "8080",
-      profile: config.profile?.[0] || "EU1",
-      tlsAuthRequired: config.tlsAuthRequired?.[0] === "true"
-    };
-  } catch (error) {
-    // Return defaults if parsing fails
-    return {
-      uniqueBaseStationId: "unknown",
-      baseStationName: "mioty-bsm",
-      baseStationVendor: "Miromico",
-      baseStationModel: "EDGE-GW-MY-868",
-      serviceCenterAddr: "localhost",
-      serviceCenterPort: "8080",
-      profile: "EU1",
-      tlsAuthRequired: false
-    };
-  }
-}
-
 // Fetch real EdgeCard configuration
 async function getEdgeCardConfig(edgeCardIp: string) {
   try {
@@ -150,14 +61,14 @@ async function getEdgeCardConfig(edgeCardIp: string) {
     const memInfo = await executeSSHCommand(edgeCardIp, "free | head -2 | tail -1 | awk '{print int($3/$2*100)\"%\"}' 2>/dev/null || echo 'unknown'")
     const edgeCardModel = await executeSSHCommand(edgeCardIp, "cat /proc/device-tree/model 2>/dev/null || echo 'EDGE-GW-MY-868'");
     
-    // Get real mioty configuration from XML file
-    let miotyParams;
+    // Try to get mioty config if available
+    const miotyConfig = await executeSSHCommand(edgeCardIp, "cat /etc/mioty/config.json 2>/dev/null || echo '{}'");
+    
+    let parsedConfig = {};
     try {
-      const xmlData = await getMiotyXMLConfig(edgeCardIp);
-      miotyParams = extractMiotyParams(xmlData);
-    } catch (error) {
-      // Fallback to defaults if XML not available
-      miotyParams = extractMiotyParams({});
+      parsedConfig = JSON.parse(miotyConfig);
+    } catch (e) {
+      parsedConfig = {};
     }
 
     // Get process status (BusyBox compatible)
@@ -171,7 +82,7 @@ async function getEdgeCardConfig(edgeCardIp: string) {
       edgeCardModel: edgeCardModel.replace(/\x00/g, '').trim() || "EDGE-GW-MY-868",
       miotyStatus: miotyStatus === "active" ? "running" : "stopped",
       autoStart: isAutoStart === "enabled",
-      config: miotyParams
+      config: parsedConfig
     };
   } catch (error) {
     throw new Error(`Failed to get EdgeCard config: ${error}`);
