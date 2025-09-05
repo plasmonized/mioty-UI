@@ -264,7 +264,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
 
         const sshProcess = spawn("ssh", [
-          "-v", // Verbose output for debugging
           "-o", "ConnectTimeout=10",
           "-o", "HostKeyAlgorithms=+ssh-rsa",
           "-o", "PubkeyAuthentication=yes",

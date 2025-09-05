@@ -1,0 +1,117 @@
+16:09:14
+INFO
+Periodic data update completed
+16:09:09
+INFO
+Base station status updated from EdgeCard: stopped
+16:09:05
+INFO
+Configuration updated from EdgeCard: mioty-bsm
+16:09:04
+INFO
+Configuration updated from EdgeCard: mioty-bsm
+16:09:03
+INFO
+Base station status updated from EdgeCard: stopped
+16:09:01
+ERROR
+SSH tunnel stderr: debug1: channel 4: free: direct-tcpip: listening port 8888 for localhost port 8080, connect from 192.168.0.91 port 60881 to 192.168.0.157 port 8888, nchannels 6 debug1: channel 5: free: direct-tcpip: listening port 8888 for localhost port 8080, connect from 192.168.0.91 port 60882 to 192.168.0.157 port 8888, nchannels 5 debug1: channel 6: free: direct-tcpip: listening port 8888 for localhost port 8080, connect from 192.168.0.91 port 60883 to 192.168.0.157 port 8888, nchannels 4 debug1: channel 7: free: direct-tcpip: listening port 8888 for localhost port 8080, connect from 192.168.0.91 port 60884 to 192.168.0.157 port 8888, nchannels 3
+16:09:01
+ERROR
+SSH tunnel stderr: debug1: channel 1: free: direct-tcpip: listening port 8888 for localhost port 8080, connect from 192.168.0.91 port 60878 to 192.168.0.157 port 8888, nchannels 8 debug1: channel 2: free: direct-tcpip: listening port 8888 for localhost port 8080, connect from 192.168.0.91 port 60879 to 192.168.0.157 port 8888, nchannels 7
+16:08:57
+ERROR
+SSH tunnel stderr: debug1: channel 3: new direct-tcpip [direct-tcpip] (inactive timeout: 0)
+16:08:57
+ERROR
+SSH tunnel stderr: debug1: Connection to port 8888 forwarding to localhost port 8080 requested.
+16:08:56
+ERROR
+SSH tunnel stderr: debug1: channel 3: free: direct-tcpip: listening port 8888 for localhost port 8080, connect from 192.168.0.91 port 60880 to 192.168.0.157 port 8888, nchannels 8
+16:08:56
+INFO
+Base station status updated from EdgeCard: stopped
+16:08:56
+ERROR
+SSH tunnel stderr: debug1: channel 5: new direct-tcpip [direct-tcpip] (inactive timeout: 0) debug1: Connection to port 8888 forwarding to localhost port 8080 requested. debug1: channel 6: new direct-tcpip [direct-tcpip] (inactive timeout: 0) debug1: Connection to port 8888 forwarding to localhost port 8080 requested. debug1: channel 7: new direct-tcpip [direct-tcpip] (inactive timeout: 0)
+16:08:56
+ERROR
+SSH tunnel stderr: debug1: Connection to port 8888 forwarding to localhost port 8080 requested.
+16:08:56
+ERROR
+SSH tunnel stderr: debug1: Connection to port 8888 forwarding to localhost port 8080 requested. debug1: channel 4: new direct-tcpip [direct-tcpip] (inactive timeout: 0)
+16:08:56
+ERROR
+SSH tunnel stderr: debug1: channel 3: new direct-tcpip [direct-tcpip] (inactive timeout: 0)
+16:08:56
+ERROR
+SSH tunnel stderr: debug1: Connection to port 8888 forwarding to localhost port 8080 requested.
+16:08:56
+ERROR
+SSH tunnel stderr: debug1: Connection to port 8888 forwarding to localhost port 8080 requested. debug1: channel 2: new direct-tcpip [direct-tcpip] (inactive timeout: 0)
+16:08:55
+ERROR
+SSH tunnel stderr: debug1: Connection to port 8888 forwarding to localhost port 8080 requested. debug1: channel 1: new direct-tcpip [direct-tcpip] (inactive timeout: 0)
+16:08:52
+ERROR
+SSH tunnel stderr: debug1: pledge: network debug1: pledge: network
+16:08:52
+ERROR
+SSH tunnel stderr: debug1: Local forwarding listening on 0.0.0.0 port 8888. debug1: channel 0: new port-listener [port listener] (inactive timeout: 0) debug1: Entering interactive session.
+16:08:52
+ERROR
+SSH tunnel stderr: Authenticated to 172.30.1.2 ([172.30.1.2]:22) using "none". debug1: Local connections to 0.0.0.0:8888 forwarded to remote address localhost:8080
+16:08:52
+ERROR
+SSH tunnel stderr: debug1: SSH2_MSG_SERVICE_ACCEPT received
+16:08:52
+ERROR
+SSH tunnel stderr: debug1: SSH2_MSG_NEWKEYS received debug1: rekey in after 4294967296 blocks debug1: Will attempt key: /home/rak/.ssh/id_rsa RSA SHA256:/J2aioDwTm4hMBdm6F71YjbFNDnlAsJITSL6oIxdmzU explicit
+16:08:52
+ERROR
+SSH tunnel stderr: debug1: rekey out after 4294967296 blocks debug1: SSH2_MSG_NEWKEYS sent debug1: expecting SSH2_MSG_NEWKEYS
+16:08:52
+ERROR
+SSH tunnel stderr: Warning: Permanently added '172.30.1.2' (RSA) to the list of known hosts.
+16:08:52
+ERROR
+SSH tunnel stderr: debug1: Server host key: ssh-rsa SHA256:IO1QKyJe3aHeoluuBxK1HZlOHI+zA+W9jpG0MTZxV70 debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts: No such file or directory debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts2: No such file or directory
+16:08:52
+ERROR
+SSH tunnel stderr: debug1: SSH2_MSG_KEX_ECDH_REPLY received
+16:08:51
+ERROR
+SSH tunnel stderr: debug1: expecting SSH2_MSG_KEX_ECDH_REPLY
+16:08:51
+ERROR
+SSH tunnel stderr: debug1: SSH2_MSG_KEXINIT received debug1: kex: algorithm: curve25519-sha256 debug1: kex: host key algorithm: ssh-rsa debug1: kex: server->client cipher: aes128-ctr MAC: hmac-sha2-256 compression: none debug1: kex: client->server cipher: aes128-ctr MAC: hmac-sha2-256 compression: none
+16:08:51
+ERROR
+SSH tunnel stderr: debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts: No such file or directory debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts2: No such file or directory debug1: SSH2_MSG_KEXINIT sent
+16:08:51
+ERROR
+SSH tunnel stderr: debug1: Authenticating to 172.30.1.2:22 as 'root'
+16:08:51
+ERROR
+SSH tunnel stderr: debug1: Remote protocol version 2.0, remote software version dropbear_2019.78 debug1: compat_banner: no match: dropbear_2019.78
+16:08:51
+ERROR
+SSH tunnel stderr: debug1: Local version string SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u7
+16:08:51
+ERROR
+SSH tunnel stderr: debug1: identity file /home/rak/.ssh/id_rsa type 0 debug1: identity file /home/rak/.ssh/id_rsa-cert type -1
+16:08:51
+ERROR
+SSH tunnel stderr: debug1: fd 3 clearing O_NONBLOCK debug1: Connection established.
+16:08:51
+ERROR
+SSH tunnel stderr: debug1: Connecting to 172.30.1.2 [172.30.1.2] port 22.
+16:08:51
+ERROR
+SSH tunnel stderr: debug1: /etc/ssh/ssh_config line 19: include /etc/ssh/ssh_config.d/*.conf matched no files debug1: /etc/ssh/ssh_config line 21: Applying options for *
+16:08:51
+ERROR
+SSH tunnel stderr: OpenSSH_9.2p1 Debian-2+deb12u7, OpenSSL 3.0.17 1 Jul 2025 debug1: Reading configuration data /etc/ssh/ssh_config
+16:08:51
+INFO
+SSH tunnel process started successfully

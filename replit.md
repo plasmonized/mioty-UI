@@ -4,6 +4,17 @@ This is a mioty wireless communication system dashboard built as a full-stack we
 
 # Recent Changes
 
+## Real Data Integration & BusyBox Compatibility (January 2025)
+- **Real Data Implementation**: Successfully replaced all mock data with live EdgeCard data
+- **BusyBox Compatibility**: Fixed SSH commands for EdgeCard's BusyBox v1.31.1 environment:
+  - Changed `uptime -p` to `uptime` (BusyBox doesn't support -p flag)
+  - Simplified memory usage command for BusyBox compatibility  
+  - Added process detection fallback using `ps` when systemctl unavailable
+- **Timeout Optimization**: Increased SSH timeouts from 15 seconds to 5 minutes (300s) for production stability
+- **Clean Logging**: Removed SSH verbose flag to eliminate debug noise in activity logs
+- **Periodic Updates**: 30-second automatic data refresh from EdgeCard
+- **Real-time Status**: Live base station status, configuration, and system information
+
 ## Dashboard SSH Tunnel Implementation (January 2025)
 - **Dashboard Button Fixed**: SSH tunnel creation now works with proper original mioty-cli compatibility
 - **SSH Configuration**: Implemented exact SSH options from original mioty-cli:
@@ -12,7 +23,7 @@ This is a mioty wireless communication system dashboard built as a full-stack we
   - `IdentityFile=/home/rak/.ssh/id_rsa` (uses automatically generated SSH keys)
   - `StrictHostKeyChecking=no` and `UserKnownHostsFile=/dev/null` for automatic connection
 - **SSH Tunnel**: Creates tunnel on `0.0.0.0:8888` forwarding to EdgeCard `localhost:8080`
-- **Error Handling**: Comprehensive SSH process monitoring with detailed error logging
+- **Error Handling**: Comprehensive SSH process monitoring with clean error logging
 - **Port Management**: Automatic cleanup of existing SSH tunnels before creating new ones
 - **Automatic SSH Setup**: Installation and update scripts now automatically:
   - Install OpenSSH client if needed
