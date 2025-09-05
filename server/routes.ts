@@ -466,7 +466,6 @@ exit 0`;
   
   private async executeLocalCommand(command: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const { spawn } = require('child_process');
       const process = spawn('bash', ['-c', command]);
       
       let output = "";
