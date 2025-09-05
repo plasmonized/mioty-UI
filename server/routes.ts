@@ -118,14 +118,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (e) { /* ignore */ }
 
         const sshProcess = spawn("ssh", [
-          "-L", "0.0.0.0:8888:localhost:8080",
-          "-N", // No remote commands
           "-o", "ConnectTimeout=10",
           "-o", "HostKeyAlgorithms=+ssh-rsa",
-          "-o", "StrictHostKeyChecking=no", 
-          "-o", "UserKnownHostsFile=/dev/null",
-          "-o", "ServerAliveInterval=30",
-          "-o", "ServerAliveCountMax=3",
+          "-L", "0.0.0.0:8888:localhost:8080",
+          "-N", // No remote commands (for background)
           `root@${edgeCardIp}`
         ], {
           stdio: ["ignore", "pipe", "pipe"],
