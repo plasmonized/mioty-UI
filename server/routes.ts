@@ -202,12 +202,12 @@ function startPeriodicUpdates() {
         // Update all data periodically
         const realData = await getEdgeCardConfig(connection.edgeCardIp);
         
-        // Update stored config with real XML data
+        // Update stored config with real XML data (except uniqueBaseStationId)
         const realConfig = {
           baseStationName: realData.config.baseStationName,
           baseStationVendor: realData.config.baseStationVendor,
           baseStationModel: realData.config.baseStationModel,
-          uniqueBaseStationId: realData.config.uniqueBaseStationId,
+          uniqueBaseStationId: "9C-65-F9-FF-FE-55-44-33", // Keep hardcoded as requested
           serviceCenterAddr: realData.config.serviceCenterAddr,
           serviceCenterPort: parseInt(realData.config.serviceCenterPort) || 8080,
           profile: realData.config.profile,
@@ -691,12 +691,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Get real configuration from EdgeCard including XML data
           const realData = await getEdgeCardConfig(connection.edgeCardIp);
           
-          // Use REAL XML parameters from EdgeCard
+          // Use REAL XML parameters from EdgeCard (except uniqueBaseStationId)
           const realConfig = {
             baseStationName: realData.config.baseStationName,
             baseStationVendor: realData.config.baseStationVendor,
             baseStationModel: realData.config.baseStationModel,
-            uniqueBaseStationId: realData.config.uniqueBaseStationId,
+            uniqueBaseStationId: "9C-65-F9-FF-FE-55-44-33", // Keep hardcoded as requested
             serviceCenterAddr: realData.config.serviceCenterAddr,
             serviceCenterPort: parseInt(realData.config.serviceCenterPort) || 8080,
             profile: realData.config.profile,
