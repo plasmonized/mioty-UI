@@ -126,7 +126,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           "-o", "UserKnownHostsFile=/dev/null",
           "-o", "ServerAliveInterval=30",
           "-o", "ServerAliveCountMax=3",
-          "-i", "/home/rak/.ssh/id_rsa",
           `root@${edgeCardIp}`
         ], {
           stdio: ["ignore", "pipe", "pipe"],
