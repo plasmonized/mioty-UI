@@ -1,0 +1,126 @@
+16:50:18
+INFO
+Base station status updated from EdgeCard: stopped
+16:50:15
+INFO
+Configuration updated from EdgeCard: mioty-bsm
+16:50:13
+INFO
+Configuration updated from EdgeCard: mioty-bsm
+16:50:11
+INFO
+Base station status updated from EdgeCard: stopped
+16:50:09
+INFO
+Base station started successfully
+16:50:09
+ERROR
+Failed to send start command: Error: SSH command failed: Warning: Permanently added '172.30.1.2' (RSA) to the list of known hosts. Failed to start mioty.service: Unit mioty.service not found. sh: /etc/init.d/mioty: No such file or directory
+16:50:09
+INFO
+Configuration updated from EdgeCard: mioty-bsm
+16:50:07
+INFO
+Base station status updated from EdgeCard: stopped
+16:50:07
+INFO
+Configuration updated from EdgeCard: mioty-bsm
+16:50:04
+CONN
+Connection established to EdgeCard
+16:49:50
+INFO
+Base station started successfully
+16:49:47
+INFO
+Connection setup completed successfully
+16:49:47
+INFO
+Base station status updated from EdgeCard: stopped
+16:49:46
+INFO
+Setting up connection and firewall rules
+16:49:40
+INFO
+Base station status updated from EdgeCard: stopped
+16:49:38
+INFO
+Base station started successfully
+16:49:38
+ERROR
+Failed to send start command: Error: SSH command failed: Warning: Permanently added '172.30.1.2' (RSA) to the list of known hosts. Failed to start mioty.service: Unit mioty.service not found. sh: /etc/init.d/mioty: No such file or directory
+16:49:34
+INFO
+Base station status updated from EdgeCard: stopped
+16:49:27
+INFO
+Base station status updated from EdgeCard: stopped
+16:49:21
+INFO
+Periodic data update completed
+16:49:21
+INFO
+Base station status updated from EdgeCard: stopped
+16:49:18
+INFO
+Configuration updated from EdgeCard: mioty-bsm
+16:49:17
+INFO
+Configuration updated from EdgeCard: mioty-bsm
+16:49:14
+INFO
+Base station status updated from EdgeCard: stopped
+16:49:08
+ERROR
+SSH tunnel stderr: Warning: Permanently added '172.30.1.2' (RSA) to the list of known hosts.
+16:49:08
+INFO
+SSH tunnel process started successfully
+16:49:08
+INFO
+Testing SSH connection to root@172.30.1.2...
+16:49:07
+INFO
+Base station status updated from EdgeCard: stopped
+16:49:07
+INFO
+Creating SSH tunnel: 0.0.0.0:8888 -> 172.30.1.2:8080
+16:49:05
+INFO
+Base station status updated from EdgeCard: stopped
+16:49:05
+INFO
+Base station started successfully
+16:49:05
+ERROR
+Failed to send start command: Error: SSH command failed: Warning: Permanently added '172.30.1.2' (RSA) to the list of known hosts. Failed to start mioty.service: Unit mioty.service not found. sh: /etc/init.d/mioty: No such file or directory
+16:49:04
+INFO
+Base station auto-start enabled
+16:49:01
+INFO
+Base station status updated from EdgeCard: stopped
+16:49:00
+INFO
+Base station started successfully
+16:49:00
+ERROR
+Failed to send start command: Error: SSH command failed: Warning: Permanently added '172.30.1.2' (RSA) to the list of known hosts. Failed to start mioty.service: Unit mioty.service not found. sh: /etc/init.d/mioty: No such file or directory
+16:48:58
+INFO
+Base station status updated from EdgeCard: stopped
+16:48:56
+INFO
+Base station status updated from EdgeCard: stopped
+16:48:56
+INFO
+Base station stopped
+16:48:56
+ERROR
+Failed to send stop command: Error: SSH command failed: Warning: Permanently added '172.30.1.2' (RSA) to the list of known hosts. Failed to stop mioty.service: Unit mioty.service not loaded. sh: /etc/init.d/mioty: No such file or directory
+16:48:53
+CONN
+Connection established to EdgeCard
+16:48:49
+INFO
+Base station started successfully

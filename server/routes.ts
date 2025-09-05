@@ -186,72 +186,242 @@ interface MulterRequest extends Request {
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Periodische Updates alle 30 Sekunden
-let updateInterval: NodeJS.Timeout | null = null;
-
-function startPeriodicUpdates() {
-  if (updateInterval) {
-    clearInterval(updateInterval);
+// Auto-discovery for correct mioty service commands
+async function discoverMiotyCommands(edgeCardIp: string) {
+  const commands = {
+    start: "",
+    stop: "",
+    status: "",
+    enable: "",
+    disable: ""
+  };
+  
+  try {
+    // Try different service patterns
+    const servicePatterns = [
+      "mioty",
+      "mioty-bsm", 
+      "miotyd",
+      "mioty_bs",
+      "mioty-service"
+    ];
+    
+    for (const service of servicePatterns) {
+      try {
+        // Test if service exists with systemctl
+        await executeSSHCommand(edgeCardIp, `systemctl status ${service} 2>/dev/null | grep -q "Unit ${service}.service" && echo "found"`);
+        commands.start = `systemctl start ${service}`;
+        commands.stop = `systemctl stop ${service}`;
+        commands.status = `systemctl is-active ${service}`;
+        commands.enable = `systemctl enable ${service}`;
+        commands.disable = `systemctl disable ${service}`;
+        break;
+      } catch (e) {
+        // Try init.d
+        try {
+          await executeSSHCommand(edgeCardIp, `test -f /etc/init.d/${service} && echo "found"`);
+          commands.start = `/etc/init.d/${service} start`;
+          commands.stop = `/etc/init.d/${service} stop`;
+          commands.status = `/etc/init.d/${service} status`;
+          commands.enable = `update-rc.d ${service} enable`;
+          commands.disable = `update-rc.d ${service} disable`;
+          break;
+        } catch (e2) {
+          // Try rc.d
+          try {
+            await executeSSHCommand(edgeCardIp, `test -f /etc/rc.d/${service} && echo "found"`);
+            commands.start = `/etc/rc.d/${service} start`;
+            commands.stop = `/etc/rc.d/${service} stop`;
+            commands.status = `/etc/rc.d/${service} status`;
+            break;
+          } catch (e3) {
+            continue;
+          }
+        }
+      }
+    }
+    
+    // Fallback to process-based control
+    if (!commands.start) {
+      commands.start = `nohup mioty_bs > /tmp/mioty.log 2>&1 & echo $! > /tmp/mioty.pid`;
+      commands.stop = `pkill -f mioty || kill $(cat /tmp/mioty.pid 2>/dev/null) 2>/dev/null || true`;
+      commands.status = `ps | grep mioty | grep -v grep >/dev/null && echo 'active' || echo 'inactive'`;
+    }
+    
+  } catch (error) {
+    // Absolute fallback
+    commands.start = `nohup mioty_bs > /tmp/mioty.log 2>&1 & echo $! > /tmp/mioty.pid`;
+    commands.stop = `pkill -f mioty || kill $(cat /tmp/mioty.pid 2>/dev/null) 2>/dev/null || true`;
+    commands.status = `ps | grep mioty | grep -v grep >/dev/null && echo 'active' || echo 'inactive'`;
   }
   
-  updateInterval = setInterval(async () => {
+  return commands;
+}
+
+// Watchdog system for automatic management
+class MiotyWatchdog {
+  private edgeCardIp: string | null = null;
+  private commands: any = null;
+  private watchdogInterval: NodeJS.Timeout | null = null;
+  private connectionInterval: NodeJS.Timeout | null = null;
+  
+  async start() {
+    this.connectionInterval = setInterval(() => this.autoConnect(), 10000); // Check connection every 10s
+    this.watchdogInterval = setInterval(() => this.watchdog(), 30000); // Watchdog every 30s
+    
+    await storage.addActivityLog({
+      level: "INFO",
+      message: "Automated Watchdog System started",
+      source: "watchdog",
+    });
+  }
+  
+  stop() {
+    if (this.connectionInterval) clearInterval(this.connectionInterval);
+    if (this.watchdogInterval) clearInterval(this.watchdogInterval);
+  }
+  
+  async autoConnect() {
     try {
       const connection = await storage.getConnection();
       
-      if (connection?.status === "connected" && connection.edgeCardIp) {
-        // Update all data periodically
-        const realData = await getEdgeCardConfig(connection.edgeCardIp);
+      if (!connection || connection.status !== "connected") {
+        // Try to auto-discover EdgeCard IP
+        const possibleIPs = [
+          "172.30.1.2",
+          "192.168.1.100", 
+          "192.168.4.1",
+          "10.0.0.1"
+        ];
         
-        // Update stored config with real XML data (except uniqueBaseStationId)
-        const realConfig = {
-          baseStationName: realData.config.baseStationName,
-          baseStationVendor: realData.config.baseStationVendor,
-          baseStationModel: realData.config.baseStationModel,
-          uniqueBaseStationId: "9C-65-F9-FF-FE-55-44-33", // Keep hardcoded as requested
-          serviceCenterAddr: realData.config.serviceCenterAddr,
-          serviceCenterPort: parseInt(realData.config.serviceCenterPort) || 8080,
-          profile: realData.config.profile,
-          tlsAuthRequired: realData.config.tlsAuthRequired,
-          tlsAllowInsecure: realData.config.tlsAllowInsecure,
-          updatedAt: new Date(),
-        };
-        
-        await storage.updateBaseStationConfig(realConfig);
-        
-        // Update system info
-        await storage.updateSystemInfo({
-          edgeCardModel: realData.edgeCardModel,
-          lastSync: new Date(),
-        });
-        
-        // Update base station status - only update system info, not manual status
-        await storage.updateBaseStationStatus({
-          autoStart: realData.autoStart,
-          uptime: realData.uptime,
-          memoryUsage: realData.memoryUsage,
-          // Do NOT override manual status changes with EdgeCard status
-        });
+        for (const ip of possibleIPs) {
+          try {
+            await executeSSHCommand(ip, "echo 'test' > /dev/null");
+            
+            // Found working IP - establish connection
+            await storage.updateConnectionStatus("connected");
+            
+            this.edgeCardIp = ip;
+            this.commands = await discoverMiotyCommands(ip);
+            
+            await storage.addActivityLog({
+              level: "CONN",
+              message: `Auto-connected to EdgeCard at ${ip}`,
+              source: "watchdog",
+            });
+            
+            // Auto-enable mioty service
+            await this.enableAutoStart();
+            break;
+          } catch (e) {
+            continue;
+          }
+        }
+      } else {
+        this.edgeCardIp = connection.edgeCardIp;
+        if (!this.commands && this.edgeCardIp) {
+          this.commands = await discoverMiotyCommands(this.edgeCardIp);
+        }
+      }
+    } catch (error) {
+      // Silent - will retry
+    }
+  }
+  
+  async enableAutoStart() {
+    if (!this.edgeCardIp || !this.commands) return;
+    
+    try {
+      if (this.commands.enable) {
+        await executeSSHCommand(this.edgeCardIp, this.commands.enable);
         
         await storage.addActivityLog({
           level: "INFO",
-          message: "Periodic data update completed",
-          source: "system",
+          message: "Auto-start enabled on EdgeCard",
+          source: "watchdog",
         });
       }
     } catch (error) {
       await storage.addActivityLog({
         level: "ERROR",
-        message: `Periodic update failed: ${error}`,
-        source: "system",
+        message: `Failed to enable auto-start: ${error}`,
+        source: "watchdog",
       });
     }
-  }, 30000); // 30 seconds
+  }
+  
+  async watchdog() {
+    if (!this.edgeCardIp || !this.commands) return;
+    
+    try {
+      // Update all data
+      const realData = await getEdgeCardConfig(this.edgeCardIp);
+      
+      // Update stored config
+      const realConfig = {
+        baseStationName: realData.config.baseStationName,
+        baseStationVendor: realData.config.baseStationVendor,
+        baseStationModel: realData.config.baseStationModel,
+        uniqueBaseStationId: "9C-65-F9-FF-FE-55-44-33",
+        serviceCenterAddr: realData.config.serviceCenterAddr,
+        serviceCenterPort: parseInt(realData.config.serviceCenterPort) || 8080,
+        profile: realData.config.profile,
+        tlsAuthRequired: realData.config.tlsAuthRequired,
+        tlsAllowInsecure: realData.config.tlsAllowInsecure,
+        updatedAt: new Date(),
+      };
+      
+      await storage.updateBaseStationConfig(realConfig);
+      await storage.updateSystemInfo({
+        edgeCardModel: realData.edgeCardModel,
+        lastSync: new Date(),
+      });
+      
+      // Auto-start mioty if it's stopped
+      if (realData.miotyStatus === "inactive") {
+        await executeSSHCommand(this.edgeCardIp, this.commands.start);
+        
+        await storage.addActivityLog({
+          level: "INFO",
+          message: "Auto-started mioty service",
+          source: "watchdog",
+        });
+        
+        // Update status to reflect start command
+        await storage.updateBaseStationStatus({
+          status: "running",
+          autoStart: realData.autoStart,
+          uptime: realData.uptime,
+          memoryUsage: realData.memoryUsage,
+          lastStarted: new Date(),
+        });
+      } else {
+        // Just update status info
+        await storage.updateBaseStationStatus({
+          autoStart: realData.autoStart,
+          uptime: realData.uptime,
+          memoryUsage: realData.memoryUsage,
+        });
+      }
+      
+    } catch (error) {
+      await storage.addActivityLog({
+        level: "ERROR",
+        message: `Watchdog error: ${error}`,
+        source: "watchdog",
+      });
+    }
+  }
 }
+
+const watchdog = new MiotyWatchdog();
+
+// Old periodic updates replaced by intelligent watchdog system
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Start periodic updates
-  startPeriodicUpdates();
+  // Start automatic watchdog system instead of simple periodic updates
+  await watchdog.start();
   
   // Connection management
   app.get("/api/connection", async (req, res) => {
@@ -531,8 +701,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (connection?.status === "connected" && connection.edgeCardIp) {
         try {
-          // Send real start command to EdgeCard
-          await executeSSHCommand(connection.edgeCardIp, "systemctl start mioty || /etc/init.d/mioty start");
+          // Use discovered commands
+          const commands = await discoverMiotyCommands(connection.edgeCardIp);
+          await executeSSHCommand(connection.edgeCardIp, commands.start);
           
           await storage.addActivityLog({
             level: "INFO",
@@ -569,8 +740,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (connection?.status === "connected" && connection.edgeCardIp) {
         try {
-          // Send real stop command to EdgeCard
-          await executeSSHCommand(connection.edgeCardIp, "systemctl stop mioty || /etc/init.d/mioty stop");
+          // Use discovered commands
+          const commands = await discoverMiotyCommands(connection.edgeCardIp);
+          await executeSSHCommand(connection.edgeCardIp, commands.stop);
           
           await storage.addActivityLog({
             level: "INFO",
