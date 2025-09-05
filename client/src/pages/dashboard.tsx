@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, RefreshCw } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import ConnectionManagement from "@/components/connection-management";
@@ -12,7 +13,7 @@ import FactoryResetModal from "@/components/modals/factory-reset-modal";
 import CredentialsModal from "@/components/modals/credentials-modal";
 import LoadingOverlay from "@/components/ui/loading-overlay";
 import { useMioty } from "@/hooks/use-mioty";
-import { apiRequest } from "@/lib/queryClient";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 
 export default function Dashboard() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -23,6 +24,32 @@ export default function Dashboard() {
   
   const { toast } = useToast();
   const { connection, systemInfo } = useMioty();
+
+  // Global refresh mutation
+  const globalRefreshMutation = useMutation({
+    mutationFn: async () => {
+      // Refresh all data endpoints
+      await Promise.all([
+        apiRequest("GET", "/api/config"),
+        apiRequest("GET", "/api/base-station/status"),
+        apiRequest("GET", "/api/system"),
+        apiRequest("GET", "/api/connection")
+      ]);
+    },
+    onMutate: () => {
+      showLoadingOverlay("Refreshing all data...");
+    },
+    onSuccess: () => {
+      hideLoadingOverlay();
+      showToast("Success", "All data refreshed from EdgeCard");
+      // Invalidate all queries to trigger refetch
+      queryClient.invalidateQueries();
+    },
+    onError: () => {
+      hideLoadingOverlay();
+      showToast("Error", "Failed to refresh data", "destructive");
+    },
+  });
 
   useEffect(() => {
     // Check for saved dark mode preference
@@ -97,6 +124,16 @@ export default function Dashboard() {
                   {connection?.status === "connected" ? "Connected" : "Disconnected"}
                 </span>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => globalRefreshMutation.mutate()}
+                disabled={globalRefreshMutation.isPending}
+                data-testid="button-global-refresh"
+              >
+                <RefreshCw className={`h-4 w-4 mr-1 ${globalRefreshMutation.isPending ? 'animate-spin' : ''}`} />
+                Refresh All
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
