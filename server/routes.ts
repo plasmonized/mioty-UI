@@ -79,10 +79,7 @@ async function getMiotyXMLConfig(edgeCardIp: string): Promise<any> {
           // Read and parse the XML file
           const xmlContent = readFileSync("/tmp/mioty_bs_config.xml", "utf8");
           
-          await ExtendedLogger.log("DEBUG", "✅ XML file retrieved successfully", "xml-config", {
-            fileSize: xmlContent.length,
-            preview: xmlContent.substring(0, 200) + "..."
-          });
+          await ExtendedLogger.log("DEBUG", "✅ XML file retrieved successfully", "xml-config");
           
           parseString(xmlContent, async (err, result) => {
             if (err) {
@@ -94,10 +91,7 @@ async function getMiotyXMLConfig(edgeCardIp: string): Promise<any> {
               return;
             }
             
-            await ExtendedLogger.log("DEBUG", "✅ XML parsed successfully", "xml-config", {
-              parsedKeys: Object.keys(result || {}),
-              baseStationConfig: result?.BaseStationConfig ? "found" : "missing"
-            });
+            await ExtendedLogger.log("DEBUG", "✅ XML parsed successfully", "xml-config");
             
             // Clean up temp file
             try {
@@ -152,12 +146,10 @@ function extractMiotyParams(xmlData: any) {
   try {
     const config = xmlData?.BaseStationConfig || {};
     
-    // Log what we found in the XML
-    ExtendedLogger.log("DEBUG", "🔍 Parsing XML parameters", "xml-parser", {
-      hasBaseStationConfig: !!config,
-      availableKeys: Object.keys(config || {}),
-      rawConfig: config
-    });
+    // Lightweight logging only
+    if (Object.keys(config || {}).length === 0) {
+      ExtendedLogger.log("WARN", "⚠️ No BaseStationConfig found in XML", "xml-parser");
+    }
     
     const result = {
       uniqueBaseStationId: config.uniqueBaseStationId?.[0] || "unknown",
@@ -171,7 +163,7 @@ function extractMiotyParams(xmlData: any) {
       tlsAllowInsecure: config.tlsAllowInsecure?.[0] === "true"
     };
     
-    ExtendedLogger.log("INFO", "📋 Extracted mioty parameters", "xml-parser", result);
+    ExtendedLogger.log("INFO", "📋 Parameters extracted from XML", "xml-parser");
     return result;
     
   } catch (error) {
