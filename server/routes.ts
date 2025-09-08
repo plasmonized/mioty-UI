@@ -121,8 +121,22 @@ async function getMiotyXMLConfig(edgeCardIp: string): Promise<any> {
       }
     });
 
-    scpProcess.on("error", (err) => {
+    scpProcess.on("error", async (err) => {
+      await ExtendedLogger.log("ERROR", "❌ SCP process error", "xml-config", {
+        error: err.message,
+        edgeCardIp: edgeCardIp
+      });
       reject(new Error(`SCP process failed: ${err.message}`));
+    });
+    
+    // Enhanced error logging for stderr
+    scpProcess.stderr?.on("data", async (data) => {
+      const errorOutput = data.toString();
+      if (!errorOutput.includes("Warning:")) { // Ignore SSH warnings
+        await ExtendedLogger.log("WARN", "⚠️ SCP stderr output", "xml-config", {
+          stderr: errorOutput.trim()
+        });
+      }
     });
 
     // Timeout after 2 minutes
@@ -138,7 +152,14 @@ function extractMiotyParams(xmlData: any) {
   try {
     const config = xmlData?.BaseStationConfig || {};
     
-    return {
+    // Log what we found in the XML
+    ExtendedLogger.log("DEBUG", "🔍 Parsing XML parameters", "xml-parser", {
+      hasBaseStationConfig: !!config,
+      availableKeys: Object.keys(config || {}),
+      rawConfig: config
+    });
+    
+    const result = {
       uniqueBaseStationId: config.uniqueBaseStationId?.[0] || "unknown",
       baseStationName: config.baseStationName?.[0] || "mioty-bsm",
       baseStationVendor: config.baseStationVendor?.[0] || "Miromico",
@@ -149,7 +170,16 @@ function extractMiotyParams(xmlData: any) {
       tlsAuthRequired: config.tlsAuthRequired?.[0] === "true",
       tlsAllowInsecure: config.tlsAllowInsecure?.[0] === "true"
     };
+    
+    ExtendedLogger.log("INFO", "📋 Extracted mioty parameters", "xml-parser", result);
+    return result;
+    
   } catch (error) {
+    ExtendedLogger.log("ERROR", "❌ XML parameter extraction failed", "xml-parser", {
+      error: String(error),
+      usingDefaults: true
+    });
+    
     // Return defaults if parsing fails
     return {
       uniqueBaseStationId: "unknown",
@@ -177,9 +207,15 @@ async function getEdgeCardConfig(edgeCardIp: string) {
     // Get real mioty configuration from XML file
     let miotyParams;
     try {
+      await ExtendedLogger.log("DEBUG", "🔍 Attempting to get mioty XML config", "config", { edgeCardIp });
       const xmlData = await getMiotyXMLConfig(edgeCardIp);
       miotyParams = extractMiotyParams(xmlData);
+      await ExtendedLogger.log("INFO", "✅ XML config retrieved successfully", "config", miotyParams);
     } catch (error) {
+      await ExtendedLogger.log("WARN", "⚠️ XML config failed, using defaults", "config", { 
+        error: String(error),
+        usingDefaults: true 
+      });
       // Fallback to defaults if XML not available
       miotyParams = extractMiotyParams({});
     }
