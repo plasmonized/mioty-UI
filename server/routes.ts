@@ -73,16 +73,31 @@ async function getMiotyXMLConfig(edgeCardIp: string): Promise<any> {
       "/tmp/mioty_bs_config.xml"
     ]);
 
-    scpProcess.on("close", (code) => {
+    scpProcess.on("close", async (code) => {
       if (code === 0) {
         try {
           // Read and parse the XML file
           const xmlContent = readFileSync("/tmp/mioty_bs_config.xml", "utf8");
-          parseString(xmlContent, (err, result) => {
+          
+          await ExtendedLogger.log("DEBUG", "✅ XML file retrieved successfully", "xml-config", {
+            fileSize: xmlContent.length,
+            preview: xmlContent.substring(0, 200) + "..."
+          });
+          
+          parseString(xmlContent, async (err, result) => {
             if (err) {
+              await ExtendedLogger.log("ERROR", "❌ XML parsing failed", "xml-config", {
+                error: err.toString(),
+                xmlPreview: xmlContent.substring(0, 500)
+              });
               reject(new Error(`Failed to parse XML: ${err}`));
               return;
             }
+            
+            await ExtendedLogger.log("DEBUG", "✅ XML parsed successfully", "xml-config", {
+              parsedKeys: Object.keys(result || {}),
+              baseStationConfig: result?.BaseStationConfig ? "found" : "missing"
+            });
             
             // Clean up temp file
             try {
@@ -92,9 +107,16 @@ async function getMiotyXMLConfig(edgeCardIp: string): Promise<any> {
             resolve(result);
           });
         } catch (error) {
+          await ExtendedLogger.log("ERROR", "❌ Failed to read XML file", "xml-config", {
+            error: String(error)
+          });
           reject(new Error(`Failed to read XML file: ${error}`));
         }
       } else {
+        await ExtendedLogger.log("ERROR", "❌ SCP transfer failed", "xml-config", {
+          exitCode: code,
+          source: `root@${edgeCardIp}:mioty_bs/mioty_bs_config.xml`
+        });
         reject(new Error(`SCP failed with code: ${code}`));
       }
     });

@@ -1,0 +1,147 @@
+Activity Log
+Clear
+Export
+11:26:22
+INFO
+Base station status updated from EdgeCard: running
+11:26:15
+INFO
+Base station status updated from EdgeCard: running
+11:26:09
+DEBUG
+✅ Watchdog cycle completed
+11:26:09
+DEBUG
+💚 Service running normally: active
+11:26:09
+INFO
+🔋 Service Status Check: mioty_bs = active
+11:26:09
+INFO
+Base station status updated from EdgeCard: running
+11:26:08
+DEBUG
+watchdog Details: { "hostname": "mioty-bsm", "miotyStatus": "running", "autoStart": true, "uptime": "11:12:50 up 9 days, 23:01, load average: 1.53, 1.16, 1.04", "memoryUsage": "46%" }
+11:26:08
+DEBUG
+📊 EdgeCard data retrieved
+11:26:07
+DEBUG
+watchdog Details: { "edgeCardIp": "172.30.1.2", "setupCompleted": false, "timestamp": "2025-09-08T09:26:07.128Z" }
+11:26:07
+DEBUG
+🔍 Watchdog cycle started
+11:26:02
+INFO
+Base station status updated from EdgeCard: running
+11:25:49
+ERROR
+SSH tunnel stderr: Warning: Permanently added '172.30.1.2' (RSA) to the list of known hosts.
+11:25:49
+INFO
+SSH tunnel process started successfully
+11:25:49
+INFO
+Testing SSH connection to root@172.30.1.2...
+11:25:48
+INFO
+Creating SSH tunnel: 0.0.0.0:8888 -> 172.30.1.2:8080
+11:25:45
+INFO
+Base station status updated from EdgeCard: running
+11:25:43
+INFO
+Configuration updated from EdgeCard: mioty-bsm
+11:25:42
+INFO
+Configuration updated from EdgeCard: mioty-bsm
+11:25:39
+INFO
+Base station status updated from EdgeCard: running
+11:25:38
+DEBUG
+✅ Watchdog cycle completed
+11:25:38
+DEBUG
+💚 Service running normally: active
+11:25:38
+INFO
+🔋 Service Status Check: mioty_bs = active
+11:25:38
+DEBUG
+watchdog Details: { "hostname": "mioty-bsm", "miotyStatus": "running", "autoStart": true, "uptime": "11:12:20 up 9 days, 23:00, load average: 1.42, 1.10, 1.02", "memoryUsage": "46%" }
+11:25:38
+DEBUG
+📊 EdgeCard data retrieved
+11:25:37
+DEBUG
+watchdog Details: { "edgeCardIp": "172.30.1.2", "setupCompleted": false, "timestamp": "2025-09-08T09:25:37.126Z" }
+11:25:37
+DEBUG
+🔍 Watchdog cycle started
+11:25:32
+INFO
+Base station status updated from EdgeCard: running
+11:25:26
+INFO
+Base station status updated from EdgeCard: running
+11:25:19
+INFO
+Base station status updated from EdgeCard: running
+11:25:13
+INFO
+Base station status updated from EdgeCard: running
+11:25:08
+DEBUG
+✅ Watchdog cycle completed
+11:25:08
+DEBUG
+💚 Service running normally: active
+11:25:08
+INFO
+🔋 Service Status Check: mioty_bs = active
+11:25:08
+DEBUG
+watchdog Details: { "hostname": "mioty-bsm", "miotyStatus": "running", "autoStart": true, "uptime": "11:11:50 up 9 days, 23:00, load average: 1.43, 1.07, 1.01", "memoryUsage": "46%" }
+11:25:08
+DEBUG
+📊 EdgeCard data retrieved
+11:25:07
+DEBUG
+watchdog Details: { "edgeCardIp": "172.30.1.2", "setupCompleted": false, "timestamp": "2025-09-08T09:25:07.122Z" }
+11:25:07
+DEBUG
+🔍 Watchdog cycle started
+11:25:06
+INFO
+Base station status updated from EdgeCard: running
+11:25:00
+INFO
+Base station status updated from EdgeCard: running
+11:24:53
+INFO
+Base station status updated from EdgeCard: running
+11:24:47
+INFO
+Base station status updated from EdgeCard: running
+11:24:40
+INFO
+Base station status updated from EdgeCard: running
+11:24:38
+DEBUG
+✅ Watchdog cycle completed
+11:24:38
+DEBUG
+💚 Service running normally: active
+11:24:38
+INFO
+🔋 Service Status Check: mioty_bs = active
+11:24:38
+DEBUG
+watchdog Details: { "hostname": "mioty-bsm", "miotyStatus": "running", "autoStart": true, "uptime": "11:11:20 up 9 days, 22:59, load average: 1.22, 0.99, 0.98", "memoryUsage": "46%" }
+11:24:38
+DEBUG
+📊 EdgeCard data retrieved
+11:24:37
+DEBUG
+watchdog Details: { "edgeCardIp": "172.30.1.2", "setupCompleted": false, "timestamp": "2025-09-08T09:24:37.122Z" }
